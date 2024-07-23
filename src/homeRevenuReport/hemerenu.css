@@ -1,0 +1,13 @@
+.emblema {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 90%;
+  color: white;
+  align-items: center;
+  padding: 80px;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+}

@@ -1,0 +1,84 @@
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(103, 171, 217, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  
+  .modal-content {
+    background: rgb(255, 254, 254);
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(248, 246, 246, 0.941);
+    width: 600px;  /* Set the desired width */
+    height: 500px; /* Set the desired height */
+    max-width: 80%; /* Ensure it doesn't overflow on smaller screens */
+    max-height: 80%; /* Ensure it doesn't overflow on smaller screens */
+    overflow: auto; /* Add scroll if content overflows */
+  }
+  
+  .styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 25px 0;
+    font-size: 0.9em;
+    font-family: 'Arial', sans-serif;
+    box-shadow: 0 0 20px #f5f3f3;
+  }
+  
+  .styled-table thead tr {
+    background-color: #009879;
+    color: #ffffff;
+    text-align: left;
+  }
+  
+  .styled-table th,
+  .styled-table td {
+    padding: 12px 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .styled-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+  }
+  
+  .styled-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+  }
+  
+  .styled-table tbody tr:last-of-type {
+    border-bottom: 2px solid #009879;
+  }
+  
+  .styled-table tbody tr.active-row {
+    font-weight: bold;
+    color: #009879;
+  }
+  
+  @media (max-width: 600px) {
+    .modal-content {
+      width: 100%;
+      padding: 10px;
+    }
+  
+    .styled-table th, .styled-table td {
+      padding: 8px;
+      font-size: 0.8em;
+    }
+  }
+  .App {
+    text-align: center;
+  }
+  
+  button {
+    padding: 10px 20px;
+    font-size: 16px;
+  }

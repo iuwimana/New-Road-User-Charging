@@ -1,0 +1,191 @@
+.modalBackground {
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(200, 200, 200);
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.my-modal {
+  width: 90vw;
+  max-width: 90vw;
+  height: 70%;
+  width: 70%;
+}
+ .modal {
+    width: 100%;
+    height: 100%;
+ }
+.my-newmodal {
+  width: 70vw;
+  max-width: 70vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  overflow: visible;
+  flex-direction: column;
+  padding: 25px;
+  transform: translate(-50%, -50%);
+  background-color: #5a96c120;
+  background-size: 10px;
+  border-radius: 40px;
+  border-color: rgb(8, 7, 7);
+}
+
+.custom-modal {
+  border-radius: 20px;
+  background-color: rgb(189, 49, 49);
+  transform: translate(-50%, -50%);
+}
+
+.modalContainer {
+  width: 1500px;
+  height: 1500px;
+  border-radius: 12px;
+  background-color: rgb(128, 164, 177);
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  display: flex;
+  flex-direction: column;
+  padding: 25px;
+}
+
+.modalContainer .title {
+  display: inline-block;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.titleCloseBtn {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.titleCloseBtn button {
+  background-color: transparent;
+  border: none;
+  font-size: 25px;
+  cursor: pointer;
+}
+
+.modalContainer .body {
+  flex: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.7rem;
+  text-align: center;
+}
+
+.modalContainer .footer {
+  flex: 20%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modalContainer .footer button {
+  width: 150px;
+  height: 45px;
+  margin: 10px;
+  border: none;
+  background-color: cornflowerblue;
+  color: white;
+  border-radius: 8px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.close {
+  background-color: crimson;
+}
+
+.invoice-box {
+  max-width: auto;
+  margin: auto;
+  padding: auto;
+  border: 1px solid #555;
+  box-shadow: 0 0 10px rgba(0, 0, 0, .15);
+  font-size: 8px;
+  line-height: auto;
+  font-family: 'Helvetica Neue', 'Helvetica';
+  color: #555;
+  
+}
+
+.margin-top {
+  margin-top: 50px;
+}
+
+.justify-center {
+  text-align: center;
+}
+
+.invoice-box table {
+  width: auto;
+  line-height: inherit;
+  text-align: left;
+}
+
+.invoice-box table td {
+  padding: 5px;
+  vertical-align: top;
+}
+
+.invoice-box table tr td:nth-child(2) {
+  text-align: right;
+}
+
+.invoice-box table tr.top table td {
+  padding-bottom: 20px;
+}
+
+.invoice-box table tr.top table td.title {
+  font-size: 45px;
+  line-height: 45px;
+  color: #333;
+}
+
+.invoice-box table tr.information table td {
+  padding-bottom: 40px;
+}
+
+.invoice-box table tr.heading td {
+  background: #eee;
+  border-bottom: 1px solid #ddd;
+  font-weight: bold;
+}
+
+.invoice-box table tr.details td {
+  padding-bottom: 20px;
+}
+
+.invoice-box table tr.item td {
+  border-bottom: 1px solid #eee;
+}
+
+.invoice-box table tr.item.last td {
+  border-bottom: none;
+}
+
+.invoice-box table tr.total td:nth-child(2) {
+  border-top: 2px solid #eee;
+  font-weight: bold;
+}
+
+@media only screen and (max-width: 600px) {
+  .invoice-box table tr.top table td {
+    width: 100%;
+    display: block;
+    text-align: center;
+  }
+
+  .invoice-box table tr.information table td {
+    width: 100%;
+    display: block;
+    text-align: center;
+  }
+}
