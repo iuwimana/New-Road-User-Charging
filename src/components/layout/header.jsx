@@ -55,9 +55,9 @@ const Header = ({ user }) => {
   //----------------------------------
   return (
     <div className="main-content bg-info">
-      <div className="header-body text-center-red mb-7">
+      <div className="header-body text-center-red mb-7 cursor-pointer bg-gradient-to-r from-blue-500 to-white  text-black py-1 px-2 my-1 rounded">
         <img src={myLogo} className="myLogo" alt="logo" />
-        <h3 className="text-white">RUCS-Road User Charging System</h3>
+        <h3 className="text-white">RUCS-Road User Charging Systems</h3>
 
         <select
           name="fiscalyearid"

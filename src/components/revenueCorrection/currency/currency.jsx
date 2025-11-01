@@ -36,8 +36,23 @@ class Currency extends Component {
       selectedrole: null,
       search: [],
       sortColumn: { path: "title", order: "asc" },
+      showModalAdd: false,
+  showModalUpdate: false,
+  selectedCurrency: null,
     };
   }
+  toggleModalAdd = () => {
+  this.setState(prev => ({ showModalAdd: !prev.showModalAdd }));
+};
+
+toggleModalUpdateOpen = (currency) => {
+  this.setState({ showModalUpdate: true, selectedCurrency: currency });
+};
+
+toggleModalUpdateClose = () => {
+  this.setState({ showModalUpdate: false, selectedCurrency: null });
+};
+
   async componentDidMount() {
     try {
       const { data: sources } = await Source.getSource();
@@ -54,6 +69,19 @@ class Currency extends Component {
       );
     }
   }
+  populateCurrencies = async () => {
+  try {
+    const { data: business } = await Business.getcurrencies();
+    if (!business) {
+      toast.error("An Error Occured, data fetching ...");
+    } else {
+      this.setState({ business });
+    }
+  } catch (ex) {
+    toast.error("An Error Occured while fetching currencies");
+  }
+};
+
   handlePageChange = (page) => {
     this.setState({ currentPage: page });
   };
@@ -168,11 +196,7 @@ class Currency extends Component {
             <td>
               
               <button
-                className="btn btn-primary"
-                data-toggle="modal"
-                data-target="#exampleModal"
-                onClick={() => this.replaceModalItem(business.currencyid,business.currencyname,business.countryname,business.buyrate,business.salerate)}
-              >
+                className="btn btn-primary" onClick={() => this.toggleModalUpdateOpen(business)}>
                 <AiFillEdit />
                 Update
               </button>{" "}
@@ -224,24 +248,25 @@ class Currency extends Component {
                     {count === 0 && (
                       <>
                         <button
-                          className="btn btn-success"
-                          data-toggle="modal"
-                          data-target="#exampleAddModal"
-                        >
+                          className="btn btn-success" onClick={this.toggleModalAdd}>
                           <FcPlus />
                           Addsource
                         </button>
                         <p>There are no Currenct  in Database.</p>
-                        <AddModal />
+                        
+                        {this.state.showModalAdd && (
+  <AddModal 
+    show={this.state.showModalAdd} 
+    handleClose={this.toggleModalAdd} 
+    refreshData={this.populateCurrencies} // new function to reload currencies
+  />
+)}
                       </>
                     )}
                     {count !== 0 && (
                       <>
                         <button
-                          className="btn btn-success"
-                          data-toggle="modal"
-                          data-target="#exampleAddModal"
-                        >
+                          className="btn btn-success" onClick={this.toggleModalAdd}>
                           <FcPlus />
                           AddCurrency
                         </button>
@@ -269,21 +294,25 @@ class Currency extends Component {
                           <tbody>{brochure}</tbody>
                         </table>
                         </div>
-                        <AddModal />
+                        {this.state.showModalAdd && (
+  <AddModal 
+    show={this.state.showModalAdd} 
+    handleClose={this.toggleModalAdd} 
+    refreshData={this.populateCurrencies} // new function to reload currencies
+  />
+)}
 
-                        <Modal
-                          currencyid={
-                            this.state.currencyid
-                          }
-                          currencyname={
-                            this.state.currencyname
-                          }
-                          countryname={this.state.countryname}
-                          buyrate={this.state.buyrate}
-                          salerate={this.state.salerate}
-                          
-                          saveModalDetails={this.saveModalDetails}
-                        />
+{this.state.showModalUpdate && this.state.selectedCurrency && (
+  <Modal
+    show={this.state.showModalUpdate}
+    handleClose={this.toggleModalUpdateClose}
+    refreshData={this.populateCurrencies}
+    selectedCurrency={this.state.selectedCurrency}
+  />
+)}
+
+
+                        
                       </>
                     )}
                     <Pagination

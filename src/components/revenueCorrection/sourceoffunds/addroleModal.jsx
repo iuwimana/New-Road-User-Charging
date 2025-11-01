@@ -1,231 +1,138 @@
-import React from "react";
-import * as source from "../../../services/RevenuRessources/sourceofFundsServices";
-import Joi from "joi-browser";
-import * as bank from "../../../services/RevenuRessources/bankservices";
-import * as RevenuType from "../../../services/RevenuRessources/revenuTypeServices";
-import * as CurrencyData from "../../../services/RevenuRessources/currencyServices";
-import { toast } from "react-toastify";
-import * as auth from "../../../services/authService";
-import Form from "../../common/form";
-class AddroleModal extends Form {
-  constructor(props) {
-    super(props);
-    //this.handleSave = this.handleSave.bind(this);
-    
-    this.state = {
-     data: { SourceofFundId:0, SourceofFundname: "", AccountNumber: "", bankid:0,  Bankname:"", revenuetypeid:0,currencyid:0, RevenueTypename:"", StartDate:"", EndDate:""}
-     ,user:{},
-     banks: [],
-     revenues: [],
-     currencies:[],
-      errors: {}
+import React from 'react';
+import { Modal, Button } from 'react-bootstrap';
+import * as source from '../../../services/RevenuRessources/sourceofFundsServices';
+import * as bank from '../../../services/RevenuRessources/bankservices';
+import * as RevenuType from '../../../services/RevenuRessources/revenuTypeServices';
+import * as CurrencyData from '../../../services/RevenuRessources/currencyServices';
+import { toast } from 'react-toastify';
+
+class AddSourceModal extends React.Component {
+    state = {
+        data: {
+            SourceofFundId: 0,
+            SourceofFundname: '',
+            AccountNumber: '',
+            bankid: '',
+            revenuetypeid: '',
+            currencyid: '',
+            StartDate: '',
+            EndDate: '',
+        },
+        banks: [],
+        revenues: [],
+        currencies: [],
+        errors: {},
     };
-  }
-async populateBanks() {
-  try{
-    const { data: banks } = await bank.getbanks();
-    const { data: revenues } = await RevenuType.getrevenuTypes();
-    const { data: currencies } = await CurrencyData.getcurrencies();
-    this.setState({ banks,revenues,currencies });
-    
-  }catch (ex) {
-    toast.error("Loading issues......");
-  }
-    
-    
-  }
 
- async  componentDidMount() {
-  await this.populateBanks();
-    const user = auth.getJwt();
-    this.setState({ user });
-  }
-    componentWillReceiveProps(nextProps) {
-    this.setState({
-      
-      SourceofFundId: nextProps.SourceofFundId,
-      currencyid:nextProps.currencyid,
-      SourceofFundname: nextProps.SourceofFundname,
-      AccountNumber: nextProps.AccountNumber,
-      bankid: nextProps.bankid,
-      revenuetypeid: nextProps.revenuetypeid,
-      StartDate: nextProps.StartDate,
-      EndDate: nextProps.EndDate,
-      
-    });
-  }
- schema = {
-    SourceofFundId: Joi.number()
-                       .required(),
-    SourceofFundname: Joi.string()
-                         .required()
-                         .label("SourceofFundname"),
-    AccountNumber: Joi.string()
-                      .required()
-                      .label("AccountNumber"),
-    bankid: Joi.number()
-               .required()
-               .label("Bank"),
-    revenuetypeid: Joi.number()
-                      .required()
-                      .label("RevenueType"),
-      currencyid: Joi.number()
-                      .required(),
-    StartDate: Joi.date(),
-    EndDate: Joi.date()
-  };
-  
- 
-   handleClick= async(e)=>{
-    try {
-    const { data } = this.state;
-    const SourceofFundId=0
-    await source.addsource(SourceofFundId,data.SourceofFundname,data.AccountNumber,data.bankid,data.revenuetypeid,data.currencyid,data.StartDate,data.EndDate);
-    toast.success(`source of funds data SourceofFundname:  ${data.SourceofFundname} ,AccountNumber: ${data.AccountNumber}, bankID: ${data.bankid} and RevenuTypeid:${data.revenuetypeid},${data.StartDate},${data.EndDate} has been updated successful`);
-   } catch (ex) {
-      if (ex.response && ex.response.status === 400) {
-        const errors = { ...this.state.errors };
-        errors.rolename = ex.response.data;
-        toast.error("Error:" + errors.rolename);
-        this.setState({ errors });
-      } else if (ex.response && ex.response.status === 409) {
-        const errors = { ...this.state.errors };
-        errors.rolename = ex.response.data;
-        toast.error("Error:" + errors.rolename);
-        this.setState({ errors });
-      } else {
-        
-        toast.error("An Error Occured, while saving role Please try again later");
+    async componentDidMount() {
+        await this.populateDropdowns();
     }
-    }
-   }
-  
-doSubmit = async(e) => {
-    //const { user } = this.state;
-    try {
-    //const SourceofFundId=0
-    //const { data } = this.state;
-    
-    //toast.success(`source of funds data SourceofFundname: ${SourceofFundId} ${item.SourceofFundname} ,AccountNumber: ${item.AccountNumber}, bankID: ${item.BankId} and RevenuTypeid:${item.RevenueTypeId},${item.StartDate},${item.EndDate} has been updated successful`);
 
-       
-      //await source.addsource(SourceofFundId,item.SourceofFundname,item.AccountNumber,item.BankId,item.RevenueTypeId,item.StartDate,item.EndDate);
-      //toast.success(`role with SourceofFundname: ${item.SourceofFundname} ,AccountNumber: ${item.AccountNumber} has been updated successful`);
-      
-    } catch (ex) {
-      if (ex.response && ex.response.status === 400) {
-        const errors = { ...this.state.errors };
-        errors.rolename = ex.response.data;
-        toast.error("Error:" + errors.rolename);
-        this.setState({ errors });
-      } else if (ex.response && ex.response.status === 409) {
-        const errors = { ...this.state.errors };
-        errors.rolename = ex.response.data;
-        toast.error("Error:" + errors.rolename);
-        this.setState({ errors });
-      } else {
-        
-        toast.error("An Error Occured, while saving role Please try again later");
-    }
-    }
-  }
+    populateDropdowns = async () => {
+        try {
+            const { data: banks } = await bank.getbanks();
+            const { data: revenues } = await RevenuType.getrevenuTypes();
+            const { data: currencies } = await CurrencyData.getcurrencies();
+            toast.info(`..............${banks}..${JSON.stringify(revenues)}`);
+            this.setState({ banks, revenues, currencies });
+        } catch (ex) {
+            toast.error('Error loading dropdown data');
+        }
+    };
 
-  render() {
-    const banks=this.state.banks
-    const revenues=this.state.revenues
-    const currencies=this.state.currencies;
-    
-    return (
-      
-      <div  
-        className="modal fade"
-        id="exampleAddModal"
-        tabIndex="-1"
-        role="dialog"
-        aria-labelledby="exampleModalLabel"
-        aria-hidden="true"
-         
-      >
-        <div className="modal-dialog" role="document" style={{
-            maxWidth: "1370px",
-            width: "100%",
-            height: "100%",
-          }}>
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title" id="exampleModalLabel">
-                RMF Revenu Collection- Add Source of Funds
-              </h5>
-              <button
-                type="button"
-                className="close"
-                data-dismiss="modal"
-                aria-label="Close"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
+    handleChange = ({ currentTarget: input }) => {
+        const data = { ...this.state.data };
+        data[input.name] = input.value;
+        this.setState({ data });
+    };
+
+    handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const { data } = this.state;
+            await source.addsource(data.SourceofFundId, data.SourceofFundname, data.AccountNumber, data.bankid, data.revenuetypeid, data.currencyid, data.StartDate, data.EndDate);
+            toast.success(`Source "${data.SourceofFundname}" added successfully`);
+            if (this.props.refreshData) this.props.refreshData();
+            if (this.props.handleClose) this.props.handleClose();
+            // reset form
+            this.setState({
+                data: {
+                    SourceofFundId: 0,
+                    SourceofFundname: '',
+                    AccountNumber: '',
+                    bankid: '',
+                    revenuetypeid: '',
+                    currencyid: '',
+                    StartDate: '',
+                    EndDate: '',
+                },
+            });
+        } catch (ex) {
+            toast.error('Error saving source of fund: ' + ex.message);
+        }
+    };
+
+    renderInput(name, label, type = 'text') {
+        const { data } = this.state;
+        return (
+            <div className="form-group">
+                <label>{label}</label>
+                <input name={name} value={data[name]} onChange={this.handleChange} type={type} className="form-control" />
             </div>
+        );
+    }
 
-            <form onSubmit={this.handleSubmit}>
-              
-                 {this.renderInput("SourceofFundname", "SourceofFundname")}
-              
-               <div className="row">
-                <div className="col">
-                   {this.renderInput("AccountNumber", "AccountNumber")}
-                </div>
-                <div className="col">
-                  {this.renderSelect("bankid", "Bank", this.state.banks)}
-                </div>
-              </div>
-               <div className="row">
-                <div className="col">
-                  {this.renderSelectRev("revenuetypeid", "RevenueType", this.state.revenues)}
-                </div>
-                <div className="col">
-                  {this.renderSelectcurr("currencyid", "currencyname", this.state.currencies)}
-                </div>
-              </div>
-               <div className="row">
-                <div className="col">
-                   {this.renderInput("StartDate", "StartDate","date")}
-                </div>
-                <div className="col">
-                  {this.renderInput("EndDate", "EndDate","date")}
-                </div>
-              </div>
-             
-             
-              
-              
-             
-              
+    renderSelect(name, label, options, valueKey = 'id', textKey = 'name') {
+        const { data } = this.state;
+        return (
+            <div className="form-group">
+                <label>{label}</label>
+                <select name={name} value={data[name]} onChange={this.handleChange} className="form-control">
+                    <option value="">Select {label}</option>
+                    {options.map((opt) => (
+                        <option key={opt[valueKey]} value={opt[valueKey]}>
+                            {opt[textKey]}
+                        </option>
+                    ))}
+                </select>
+            </div>
+        );
+    }
 
-              
-              <div className="modal-footer">
-              <button 
-              type="button"
-              className="btn btn-primary"
-              data-dismiss="modal"
-                onClick={this.handleClick}
-              >AddNew</button>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-dismiss="modal"
-              >
-                Close
-              </button >
-              
-              </div>
-              </form>
-           
-            
-          </div>
-        </div>
-      </div>
-    );
-  }
+    render() {
+        const { show, handleClose } = this.props;
+        const { banks, revenues, currencies } = this.state;
+
+        return (
+            <Modal show={show} onHide={handleClose} size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title>Add Source of Fund</Modal.Title>
+                </Modal.Header>
+
+                <Modal.Body>
+                    {this.renderInput('SourceofFundname', 'Source Name')}
+                    {this.renderInput('AccountNumber', 'Account Number')}
+                    <div className="row">
+                        <div className="col">{this.renderSelect('bankid', 'Bank', banks, 'bankid', 'bankname')}</div>
+                        <div className="col">{this.renderSelect('revenuetypeid', 'Revenue Type', revenues, 'revenuetypeid', 'revenuetypename')}</div>
+                        <div className="col">{this.renderSelect('currencyid', 'Currency', currencies, 'currencyid', 'currencyname')}</div>
+                    </div>
+                    <div className="row mt-2">
+                        <div className="col">{this.renderInput('StartDate', 'Start Date', 'date')}</div>
+                        <div className="col">{this.renderInput('EndDate', 'End Date', 'date')}</div>
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Close
+                    </Button>
+                    <Button variant="primary" onClick={this.handleSubmit}>
+                        Add New
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        );
+    }
 }
 
-export default AddroleModal;
+export default AddSourceModal;

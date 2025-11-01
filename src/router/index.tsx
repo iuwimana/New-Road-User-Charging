@@ -1,7 +1,10 @@
+
+
 import { createBrowserRouter } from 'react-router-dom';
 import BlankLayout from '../components/Layouts/BlankLayout';
 import DefaultLayout from '../components/Layouts/DefaultLayout';
 import { routes } from './routes';
+import RequireAuth from './RequireAuth';
 
 
 const finalRoutes = routes.map((route) => {

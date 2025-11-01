@@ -3,6 +3,7 @@ import  apiUrl  from "../../config.json";
 import { toast } from "react-toastify";
 const apiEndpoint = apiUrl.apiUrl + "/indicator/indicator";
 const apiEndpoints = apiUrl.apiUrl + "/indicator/indicators";
+import { useNavigate } from 'react-router-dom';
 
 
 export async function getindicators() {

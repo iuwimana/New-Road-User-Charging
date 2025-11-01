@@ -11,7 +11,7 @@ const SelectCharacteristic = ({ name, label, options, error, ...rest }) => {
           <select name={name} id={name} {...rest} className="form-control">
             <option value="" />
             {options.map((option) => (
-              <option key={option.roadclassificationid} value={option.roadclassificationid}>
+              <option key={option.roadcharacteristicsid} value={option.roadcharacteristicsid}>
                 {option.roadclass +" with number of lames:"+option.numberoflames + " shoulder:"+ option.shouldername}
               </option>
             ))}

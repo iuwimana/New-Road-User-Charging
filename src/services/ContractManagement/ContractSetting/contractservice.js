@@ -10,6 +10,7 @@ const apiEndpointprojectcontracts = apiUrl.apiUrl + "/contractproject/contractpr
 const apiEndpointcontractid = apiUrl.apiUrl + "/contract/contractbycontractid";
 const apiEndpointcontractfiscalyear = apiUrl.apiUrl + "/contract/contractfiscalyear";
 const apiEndpointcontractstatus = apiUrl.apiUrl + "/contract/contractstatus";
+const apiEndpointcontractworkflow = apiUrl.apiUrl + "/contract/contract-workflow";
 
 export async function getcontracts() {
   try {
@@ -52,7 +53,8 @@ export async function getcontractByfiscalyear(fiscalyearid) {
 }
 export async function updatecontractstatus(contractid,statusmsg) {
   try {
-    return await http.post(apiEndpointcontractstatus, {contractid,statusmsg});
+     const response =await http.post(apiEndpointcontractstatus, {contractid,statusmsg});
+    return response.data;
   } catch (ex) {
     return toast.error(
       "An Error Occured, while fetching contract data, Please try again later" +
@@ -106,9 +108,98 @@ export async function getcontractBycontracttypeId(contracttypeid) {
     );
   }
 }
+//apiEndpointcontractworkflow
+
+export async function saveContractWorkflow (contractData, teamMembersArray ) {
+  try {
+    const response = await http.post(apiEndpointcontractworkflow, {
+       contract_data: contractData,  // Exactly matches backend expectation
+      team_members: {
+        teamMembers: teamMembersArray // Properly nested structure
+      }
+    });
+    return {
+      success: true,
+      message: response.data,
+      operation: contractData.projectid === 0 ? 'inserted' : 'updated'
+    };
+  } catch (ex) {
+     const errorMsg = ex.response?.data?.error || 
+                   'Failed to save contract workflow';
+
+      console.error('API Error:', ex.response?.data || ex.message);
+    toast.error(errorMsg);
+    return {
+      success: false,
+      error: errorMsg,
+      details: ex.response?.data || null
+
+    };   
+    
+  }
+}
+
+export async function updateContractWorkflow (submissionData, teamMembersData ) {
+  try {
+    const response = await http.post(apiEndpointcontractworkflow, {
+       contract_data: contractData,  // Exactly matches backend expectation
+      team_members: {
+        teamMembers: teamMembersArray // Properly nested structure
+      }
+    });
+    return {
+      success: true,
+      message: response.data,
+      operation: contractData.projectid === 0 ? 'inserted' : 'updated'
+    };
+  } catch (ex) {
+     const errorMsg = ex.response?.data?.error || 
+                   'Failed to save contract workflow';
+
+      console.error('API Error:', ex.response?.data || ex.message);
+    toast.error(errorMsg);
+    return {
+      success: false,
+      error: errorMsg,
+      details: ex.response?.data || null
+
+    };   
+    
+  }
+
+  {/** 
+  
+  try {
+    const response = await http.post(apiEndpointcontractworkflow, {
+       contract_data: submissionData,  // Exactly matches backend expectation
+      team_members: {
+        teamMembers: teamMembersData // Properly nested structure
+      }
+    });
+    return {
+      success: true,
+      message: response.data,
+      operation: submissionData.projectid === 0 ? 'inserted' : 'updated'
+    };
+  } catch (ex) {
+     const errorMsg = ex.response?.data?.error || 
+                   'Failed to save contract workflow';
+
+      console.error('API Error:', ex.response?.data || ex.message);
+    toast.error(errorMsg);
+    return {
+      success: false,
+      error: errorMsg,
+      details: ex.response?.data || null
+
+    };   
+    
+  }*/}
+}
 
 export async function deletecontract(contractid) {
   try {
+    
     await http.delete(apiEndpoint, {
       data: { contractid: contractid },
     });

@@ -54,7 +54,7 @@ import * as Contract from "../services/ContractManagement/ContractSetting/contra
 import * as UserAccessData from "../services/security/securableService";
 import * as UserHeadData from "../services/security/userServices";
 
-import jwtDecode from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 import { BiSubdirectoryRight } from "react-icons/bi";
 import * as ContractType from "../services/ContractManagement/ContractSetting/contractTypeService";
 import { DiSqllite } from "react-icons/di";

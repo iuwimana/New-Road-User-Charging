@@ -78,19 +78,27 @@ const DefaultLayout = ({ children }: PropsWithChildren) => {
                 <Setting />
                 {/* END APP SETTING LAUNCHER */}
 
-                <div className={`${themeConfig.navbar} main-container text-black dark:text-white-dark min-h-screen`}>
+
+                {/**---------------------------------------------gukosora layout */}
+                
+
+                     <div className={`main-content flex-1 transition-all duration-300 ${themeConfig.sidebar ? 'ml-[260px]' : 'ml-[70px]'}`}>
+
                     {/* BEGIN SIDEBAR */}
                     <Sidebar />
                     {/* END SIDEBAR */}
 
-                    <div className="main-content flex flex-col min-h-screen">
+                
+                        <div className="main-content flex-1 flex flex-col min-h-screen ml-[260px] lg:ml-[260px]">
+
                         {/* BEGIN TOP NAVBAR */}
                         <Header />
                         {/* END TOP NAVBAR */}
 
                         {/* BEGIN CONTENT AREA */}
                         <Suspense>
-                            <div className={`${themeConfig.animation} p-6 animate__animated`}>{children}</div>
+                            <div className="p-6 lg:p-10">{children}</div>
+
                         </Suspense>
                         {/* END CONTENT AREA */}
 

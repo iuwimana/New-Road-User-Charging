@@ -35,11 +35,13 @@ import IconMenuPages from '../Icon/Menu/IconMenuPages';
 import IconMenuMore from '../Icon/Menu/IconMenuMore';
 import * as FiscalYear from '../../services/RMFPlanning/fiscalYearService';
 import * as auth from '../../services/authService';
+import authuser from '../../services/security/authuserServices';
 import { toast } from 'react-toastify';
 import axios, { AxiosResponse, AxiosError } from 'axios';
 
 import './Header.css';
 import { left, right } from '@popperjs/core';
+import { Toast } from 'react-toastify/dist/components';
 interface FiscalYearData {
     // Define the structure of your data here
     fiscalyearid: number;
@@ -87,7 +89,6 @@ const Header = () => {
                     //console.log(`Response is AS fiscalyearid:${fiscalyearid} AND fiscalyear:${fiscalyear} .`);
                 } else {
                     toast.error('Response is null.');
-
                 }
             } catch (error) {
                 toast.error(`Error fetching fiscal year data, ${error}`);
@@ -115,7 +116,13 @@ const Header = () => {
     //------------------------------------------
     useEffect(() => {
         const fetchProgram = async () => {
-            const { data } = await auth.getCurrentUser();
+            const data = await auth.getCurrentUser();
+            if (!data) {
+                // Handle null case
+                toast.warning('No user data available');
+                return;
+            }
+            //const email=data.rows[0]
             setUser(data);
             //toast.info(`username ${auth.getCurrentUser().username}`)
         };
@@ -124,6 +131,18 @@ const Header = () => {
 
     //------------------------------------
 
+    // {currentUser.username} {currentUser.rows[0].fullname}
+    //const email=auth.getCurrentUser()?.username
+    // const fullname=auth.getCurrentUser()?.fullname
+    const userDatas = authuser.getCurrentUser();
+    //const users = userDatas?.rows?.[0];
+    //const users = authuser.getCurrentUser();
+    const fullName = userDatas?.fullname ?? 'Guest';
+    const email = userDatas?.email;
+
+    //toast.info(`usernames ${fullname}`)
+    //toast.info(`usernames ${JSON.stringify(fullName)}`);
+    //const email = users?.username ?? ''; // safely access username
     const location = useLocation();
     useEffect(() => {
         const selector = document.querySelector('ul.horizontal-menu a[href="' + window.location.pathname + '"]');
@@ -227,9 +246,16 @@ const Header = () => {
     const [flag, setFlag] = useState(themeConfig.locale);
 
     const { t } = useTranslation();
+    const currentUser = auth.getCurrentUser();
+    {
+        /**
+        toast.info(`currentUser:${JSON.stringify(currentUser)}`)
+    toast.info(`currentUser:${currentUser.rows[0].fullname}`)
+        */
+    }
 
     return (
-        <header className={`z-40 ${themeConfig.semidark && themeConfig.menu === 'horizontal' ? 'dark' : ''}`}>
+        <header className={`z-40 ${themeConfig.semidark && themeConfig.menu === 'horizontal' ? 'dark' : ''} cursor-pointer bg-gradient-to-r from-blue-300 to-white  text-black py-1 px-2 my-1 rounded`}>
             <div className="container mt-3 ">
                 <div className="shadow-sm text-end ">
                     <div className="horizontal-logo flex lg:hidden justify-between items-center ltr:mr-2 rtl:ml-2">
@@ -247,12 +273,10 @@ const Header = () => {
                             <IconMenu className="w-5 h-5" />
                         </button>
                     </div>
-                    <div className="relative bg-white flex w-full items-end px-5 py-2.5 dark:bg-black">
+                    <div className="relative bg-white flex w-full items-end px-5 py-2.5 dark:bg-black cursor-pointer bg-gradient-to-r from-blue-200 to-white  text-black py-1 px-2 my-1 rounded">
                         <div className="headertext  mb-7 ">
                             <div className={textSize} style={{ textAlign: right }}>
-                                
                                 RUCS-Road User Charging System
-                                
                                 <small>
                                     {'-               '} Fiscal Year :{fiscalyear}
                                 </small>
@@ -260,12 +284,7 @@ const Header = () => {
                         </div>
                         <div className="headertext1  mb-7 ">
                             <div className={textSize1} style={{ textAlign: right }}>
-                                
-                                
-                                
-                                <small>
-                                     Fiscal Year :{fiscalyear}
-                                </small>
+                                <small>Fiscal Year :{fiscalyear}</small>
                             </div>
                         </div>
                         <div className="sm:flex-1 ltr:sm:ml-0 ltr:ml-auto sm:rtl:mr-0 rtl:mr-auto flex items-end space-x-1.5 lg:space-x-2 rtl:space-x-reverse dark:text-[#d0d2d6]"></div>
@@ -418,39 +437,74 @@ const Header = () => {
                                     button={<img className="w-9 h-9 rounded-full object-cover saturate-50 group-hover:saturate-100" src="/assets/images/user-profile.jpeg" alt="userProfile" />}
                                 >
                                     <ul className="text-dark dark:text-white-dark !py-0 w-[230px] font-semibold dark:text-white-light/90 ">
-                                        <li>
-                                            <div className="flex items-center px-4 py-4">
-                                                <img className="rounded-md w-10 h-10 object-cover" src="/assets/images/user-profile.jpeg" alt="userProfile" />
-                                                <div className="ltr:pl-4 rtl:pr-4 truncate">
-                                                    <h4 className="text-base">
-                                                        {auth.getCurrentUser().FullName}
-                                                        <span className="text-xs bg-success-light rounded text-success px-1 ltr:ml-2 rtl:ml-2">Pro</span>
-                                                    </h4>
-                                                    <button type="button" className="text-black/60 hover:text-primary dark:text-dark-light/60 dark:hover:text-white">
-                                                        {auth.getCurrentUser().username}
-                                                    </button>
+                                        {currentUser ? (
+                                            <>
+                                                <div className="container">
+                                                    <div className="profile-card">
+                                                        <div className="profile-header">
+                                                            <li>
+                                                                <div className="profile-pic">
+                                                                    <i className="fas fa-user">
+                                                                        <img className="rounded-md w-10 h-10 object-cover" src="/assets/images/user-profile.jpeg" alt="userProfile" />
+                                                                    </i>
+                                                                </div>
+                                                                <h4 className="profile-name">
+                                                                    {fullName}
+                                                                    <p className="profile-email">{email}</p>
+                                                                    <span className="text-xs bg-success-light rounded text-success px-1 ltr:ml-2 rtl:ml-2">RUC</span>
+                                                                </h4>
+                                                                <button type="button" className="text-black/60 hover:text-primary dark:text-dark-light/60 dark:hover:text-white">
+                                                                    {email}
+                                                                </button>
+                                                            </li>
+                                                            <li>
+                                                                {/*
+                                                     <Link to="/users/profile" className="dark:hover:text-white">
+                                                     <IconUser className="w-4.5 h-4.5 ltr:mr-2 rtl:ml-2 shrink-0" />
+                                                       Profile
+                                                     </Link>
+                                                    */}
+                                                            </li>
+                                                            <li>
+                                                                <Link to="/apps/mailbox" className="dark:hover:text-white">
+                                                                    <IconMail className="w-4.5 h-4.5 ltr:mr-2 rtl:ml-2 shrink-0" />
+                                                                    Inbox
+                                                                </Link>
+                                                            </li>
+                                                            <li className="border-t border-white-light dark:border-white-light/10">
+                                                                <Link to="/auth/boxed-signin" onClick={logout} className="text-danger !py-3">
+                                                                    <IconLogout className="w-4.5 h-4.5 ltr:mr-2 rtl:ml-2 rotate-90 shrink-0" />
+                                                                    Sign Out
+                                                                </Link>
+                                                            </li>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <Link to="/users/profile" className="dark:hover:text-white">
-                                                <IconUser className="w-4.5 h-4.5 ltr:mr-2 rtl:ml-2 shrink-0" />
-                                                Profile
-                                            </Link>
-                                        </li>
-                                        <li>
-                                            <Link to="/apps/mailbox" className="dark:hover:text-white">
-                                                <IconMail className="w-4.5 h-4.5 ltr:mr-2 rtl:ml-2 shrink-0" />
-                                                Inbox
-                                            </Link>
-                                        </li>
-
-                                        <li className="border-t border-white-light dark:border-white-light/10 ">
-                                            <Link to="/auth/boxed-signin" onClick={logout} className="text-danger !py-3">
-                                                <IconLogout className="w-4.5 h-4.5 ltr:mr-2 rtl:ml-2 rotate-90 shrink-0" />
-                                                Sign Out
-                                            </Link>
-                                        </li>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <li>
+                                                    {/*
+                                                     <Link to="/users/profile" className="dark:hover:text-white">
+                                                     <IconUser className="w-4.5 h-4.5 ltr:mr-2 rtl:ml-2 shrink-0" />
+                                                       Profile
+                                                     </Link>
+                                                    */}
+                                                </li>
+                                                <li>
+                                                    <Link to="/apps/mailbox" className="dark:hover:text-white">
+                                                        <IconMail className="w-4.5 h-4.5 ltr:mr-2 rtl:ml-2 shrink-0" />
+                                                        Inbox
+                                                    </Link>
+                                                </li>
+                                                <li className="border-t border-white-light dark:border-white-light/10">
+                                                    <Link to="/auth/boxed-signin" onClick={logout} className="text-danger !py-3">
+                                                        <IconLogout className="w-4.5 h-4.5 ltr:mr-2 rtl:ml-2 rotate-90 shrink-0" />
+                                                        Sign Out
+                                                    </Link>
+                                                </li>
+                                            </>
+                                        )}
                                     </ul>
                                 </Dropdown>
                             </div>

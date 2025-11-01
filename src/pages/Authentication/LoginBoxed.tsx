@@ -69,8 +69,31 @@ const LoginBoxed = () => {
                 toast.info('password is Required, Please fill it!!');
                 
             } else {
-                navigate('/auth/verifyotp',{state: { Email, password }});
-                 await auth.login(Email,password)
+                {/**
+                    --------------------OTP Verification has ben stoped due to  If the email account "noreply@rmf.gov.rw" has Two-Factor Authentication (2FA) enabled.
+
+                    navigate('/auth/verifyotp',{state: { Email, password }});
+                     */}
+                
+                const login=await auth.login(Email,password);
+                //toast.info(`login${JSON.stringify(login)}`)
+                if (login)
+                {
+                    navigate('/home'); 
+                    toast.success(
+                                    `Dear: ${Email} you are authentication is correct`
+                                  );  
+                }else {
+                             toast.error(
+                               `Your authentication has been failled`
+                             );
+                
+
+                        }
+
+                       window.location.reload();
+
+                //navigate('/analytics'); 
                 //console.log(`login information Email:${Email},password:${password}`)
                 
             }
@@ -104,7 +127,7 @@ const LoginBoxed = () => {
                                 <h1 className="text-3xl font-extrabold uppercase !leading-snug text-primary md:text-4xl">Sign in</h1>
                                 <p className="text-base font-bold leading-normal text-white-dark">Enter your email and password to login</p>
                             </div>
-                            <form className="space-y-5 dark:text-white" onSubmit={submitForm}>
+                            
                                 <div>
                                     <label htmlFor="Email">Emails</label>
                                     <div className="relative text-white-dark">
@@ -123,27 +146,35 @@ const LoginBoxed = () => {
                                         </span>
                                     </div>
                                 </div>
-                                <div>
-                                    <label className="flex cursor-pointer items-center">
-                                        <input type="checkbox" className="form-checkbox bg-white dark:bg-black" />
-                                        <span className="text-white-dark">Subscribe to weekly newsletter</span>
-                                    </label>
-                                </div>
-                                <button type="submit" className="btn btn-gradient !mt-6 w-full border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]">
+                                
+                                <button onClick={submitForm}  className="btn btn-gradient !mt-6 w-full border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]">
                                     Sign in
                                 </button>
-                            </form>
+                            
+                            <div className="relative my-7 text-center md:mb-9">
+                                <span className="absolute inset-x-0 top-1/2 h-px w-full -translate-y-1/2 bg-white-light dark:bg-white-dark"></span>
+                                <span className="relative bg-white px-2 font-bold uppercase text-white-dark dark:bg-dark dark:text-white-light"></span>
+                            </div>
+                            
+                            <div className="text-center dark:text-white">
+                            Do you forget your Password ?  Please Reset it Here &nbsp;
+                                <Link to="/auth/boxed-password-reset" className="uppercase text-primary underline transition hover:text-black dark:hover:text-white">
+                                    Reset
+                                </Link>
+                            </div>
+
                             <div className="relative my-7 text-center md:mb-9">
                                 <span className="absolute inset-x-0 top-1/2 h-px w-full -translate-y-1/2 bg-white-light dark:bg-white-dark"></span>
                                 <span className="relative bg-white px-2 font-bold uppercase text-white-dark dark:bg-dark dark:text-white-light">or</span>
                             </div>
-                            
+                            {/** 
                             <div className="text-center dark:text-white">
                                 Don't have an account ?&nbsp;
                                 <Link to="/auth/boxed-signup" className="uppercase text-primary underline transition hover:text-black dark:hover:text-white">
                                     SIGN UP
                                 </Link>
                             </div>
+                            */}
                         </div>
 
                         

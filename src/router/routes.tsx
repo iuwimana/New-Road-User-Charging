@@ -101,25 +101,43 @@ const DateRangePicker = lazy(() => import('../pages/Forms/DateRangePicker'));
 const Clipboard = lazy(() => import('../pages/Forms/Clipboard'));
 const VerifyOTP = lazy(() => import('../pages/Authentication/OtpInput'));
 //--------------------revenu collection
+
+//--------------------damaged
+const Roaditem= lazy(() => import('../components/revenueCorrection/AccidentCompensation/RoadItem/roadItem'));
+const Declaration= lazy(() => import('../components/revenueCorrection/AccidentCompensation/AccidentDeclaration/declaration'));
+const SiteInspection= lazy(() => import('../components/revenueCorrection/AccidentCompensation/SiteInspection/siteInspection'));
+const ClaimPayment= lazy(() => import('../components/revenueCorrection/AccidentCompensation/PaymentClaim/paymentClaim'));
+const Insurance= lazy(() => import('../components/revenueCorrection/Insurance/insurancetable'));
+
+//--------------------damaged
+const Revenuanalytics= lazy(() => import('../components/revenueCorrection/RevenuDashbord/revenuAnalytics'));
 const Revenupayment = lazy(() => import('../components/revenueCorrection/revenuPayment/revenuPayment'));
 const Currency = lazy(() => import('../components/revenueCorrection/currency/currency'));
 const Fiscalyear = lazy(() => import('../components/revenueCorrection/FiscalYear/fiscalyear'));
 const Sources = lazy(() => import('../components/revenueCorrection/sourceoffunds/sourceofFunds'));
 const RevCorrection = lazy(() => import('../components/revenueCorrection/revenuCorrection/revenuCorrection'));
+const Bankstatement = lazy(() => import('../components/revenueCorrection/revenuCorrection/Bankstatement'));
+const FromBanks = lazy(() => import('../components/revenueCorrection/revenuCorrection/frombank'));
+const Payments  = lazy(() => import('../components/revenueCorrection/revenuCorrection/payments'));
+const IFMISPayment=lazy(() => import('../components/revenueCorrection/revenuCorrection/IFMISPayments'));
+
 const Payment  = lazy(() => import('../components/revenueCorrection/revenuPayment/revenuPayment'));
+const ContractPayment  = lazy(() => import('../components/revenueCorrection/contractPayment/payments'));
 const  Product  = lazy(() => import('../components/revenueCorrection/revenuProduct/revenuProduct'));
 const Revupload  = lazy(() => import('../components/revenueCorrection/revenuCorrection/revenuCorrectionsupload'));
 const ViewPayment  = lazy(() => import('../components/revenueCorrection/paternerServicePayment/viewpaternerServicePayment'));
 const Business  = lazy(() => import('../components/revenueCorrection/businessPaterner/businessPaterner'));
+const AnnualTarget  = lazy(() => import('../components/revenueCorrection/AnnualTarget/annualtarget'));
+
 const Paterner  = lazy(() => import('../components/revenueCorrection/paternerService/paternerService'));
 const ServicePayment  = lazy(() => import('../components/revenueCorrection/servicePayment/servicePayment'));
 const PaternerServicePayment  = lazy(() => import('../components/revenueCorrection/paternerServicePayment/paternerServicePayment'));
 const Expenduture  = lazy(() => import('../components/revenueCorrection/Expenduture/expenduture'));
-const RevDashboard  = lazy(() => import('../components/revenueCorrection/RevenuDashbord/revenudashboard'));
+const RevDashboard  = lazy(() => import('../components/revenueCorrection/RevenuDashbord/revenudashboard1'));
 const RevAdmin = lazy(() => import('../components/security/CollectionAdministration/securables'));
 
 const Program = lazy(() => import('../components/rmfplannings/Program/program'));
-const ProgramTable = lazy(() => import('../components/rmfplannings/Program/programTable'));
+const ProgramTable = lazy(() => import('../components/rmfplannings/PlanningPress/planningIndex'));
 const ViewSAP = lazy(() => import('../components/rmfplannings/viewSAP/sap'));
 const PlanAdmin = lazy(() => import('../components/security/PlaningAdministration/securables'));
 
@@ -127,6 +145,8 @@ const Contractx = lazy(() => import('../components/ContractManagemenrt/Contracti
 const Inspectionx = lazy(() => import('../components/ContractManagemenrt/InspectionIndex'));
 const Paymentx = lazy(() => import('../components/ContractManagemenrt/PaymentIndex'));
 const Contractm = lazy(() => import('../components/ContractManagemenrt/contractSideMenu'));
+const Tycontract = lazy(() => import('../components/ContractManagemenrt/inspectionSetting/typesofContractActivities/activityTypes'));
+const Cactivity = lazy(() => import('../components/ContractManagemenrt/contracts/contractActivities/contractActivity'));
 
 
 const FiscalYearContractType = lazy(() => import('../components/ContractManagemenrt/ContractSettings/contracttype/contracttype'));
@@ -136,6 +156,12 @@ const ContrAdmin = lazy(() => import('../components/security/ContractAdministrat
 const EmmargencyInspectionApproval= lazy(() => import('../components/ContractManagemenrt/inspectionApproval/emmargencyApproval/emmagencyApproval'));
 const FrameworkInspectionApproval= lazy(() => import('../components/ContractManagemenrt/inspectionApproval/frameworkApproval/frameworkApproval'));
 const PaymentApproval=lazy(() => import('../components/ContractManagemenrt/paymentApproval/paymentApproval'));
+const Descriptor=lazy(() => import('../components/ContractManagemenrt/inspectionSetting/inspectChecklist/evaluationDiscriptor'));
+const InspectPlans=lazy(() => import('../components/ContractManagemenrt/inspectionPlan/Contractindex'));
+const Inspectevaluation=lazy(() => import('../components/ContractManagemenrt/inspection/planningIndex'));
+const PaymentSetting=lazy(() => import('../components/ContractManagemenrt/paymentSetting/paymentSetting/paymentsettingindex'));
+const ContractPayments=lazy(() => import('../components/ContractManagemenrt/payments/payments'));
+
 
 
 
@@ -147,10 +173,12 @@ const Role = lazy(() => import('../components/security/Role/roles'));
 const Userapproval = lazy(() => import('../components/security/userApproval/userapproval'));
 const Securables = lazy(() => import('../components/security/Securables/securables'));
 const Audit = lazy(() => import('../components/security/AuditTrail/audittrail'));
-
+//-------------------------lookup
+const Road = lazy(() => import('../components/ContractManagemenrt/RoadRefference/Road/road'));
 
 //------------------------
 import auths from "../services/authService";
+import path from 'path';
 
 
 
@@ -162,16 +190,48 @@ const routes = [
         element: <RevDashboard/>,
         
     },
+    {
+        path: '/home',
+        element: <RevDashboard/>,
+        
+    },
     // {
     //     path: '/index',
     //     element: <Index />,
     // },
     // analytics page
+    //------------------------------Lookup/roadrefference
+    {
+        path: 'Lookup/roadrefference/road',
+         element: <Road />,
+      },
+
     //------------------------------revenu contract
+   
     {
         path: '/contract/contracts',
          element: <Contractx />,
       },
+      //
+      {
+        path: '/revenu/contractpayment',
+         element: <ContractPayment />,
+      },
+      {
+        path: '/contract/inspectionseting/activitytype',
+         element: <Tycontract/>,
+      },
+      {
+        path: '/contract/inspectionevaluation',
+         element: <Inspectevaluation/>,
+      },
+      
+      {
+        path: '/contract/contracts/contractactivities',
+         element: <Cactivity/>,
+      },
+      //
+      
       {
         path: '/contract/Inspections',    
          element: <Inspectionx />,
@@ -180,6 +240,11 @@ const routes = [
         path: '/contract/Payments',    
          element: <Paymentx />,
       }, 
+      {
+        path:'revenu/annualtarget',
+        element:<AnnualTarget/>,
+
+      },
       {
         path: '/contract/approval/emmargency',    
          element: <EmmargencyApproval />,
@@ -213,6 +278,25 @@ const routes = [
         path: '/contract/administration',
          element: <ContrAdmin />,
       },
+      {
+        path: '/contract/contracts/descriptors',
+         element: <Descriptor />,
+      },
+      {
+        path: '/contract/payment/setting',
+         element: <PaymentSetting />,
+      },
+       {
+        path: '/contract/payment/contractpayments',
+         element: <ContractPayments />,
+      },
+      //
+      {
+        path: '/contract/contracts/inspectionplan',
+         element: <InspectPlans />,
+      },
+      
+      
       
       
 //------------------------------Planing
@@ -236,7 +320,39 @@ const routes = [
 
  
 //------------------------------revenu collection
-    //         
+    //
+    {
+        path:'/revenu/revenuanalytics',
+        element:<Revenuanalytics/>
+
+    } ,  
+    {
+        path:'/revenu/accident/roaditem',
+        element:<Roaditem/>
+
+    } ,
+    {
+        path:'/revenu/accident/accidentdeclaration',
+        element:<Declaration/>
+
+    } ,
+    {
+        path:'/revenu/insurance',
+        element:<Insurance/>
+
+    } ,
+    
+    {
+        path:'/revenu/accident/siteinspection',
+        element:<SiteInspection/>
+
+    } ,
+    {
+        path:'/revenu/accident/claimedpayment',
+        element:<ClaimPayment/>
+
+    } ,
+    //      
     {
         path: '/revenu/RevDashboard',
          element: <RevDashboard />,
@@ -244,6 +360,11 @@ const routes = [
       {
         path: '/revenu/expenduture',
          element: <Expenduture />,
+      },
+      {
+        path:'/revenu/ifmispayments',
+        element:<IFMISPayment/>
+
       },
       {
         path: '/lookup/revenu/PaternerServicePayment',
@@ -297,6 +418,20 @@ const routes = [
         path: '/revenu/revenucollection',
          element: <RevCorrection />,
       },
+      {
+        path: '/revenu/payments',
+         element: <Payments />,
+      },
+      {
+        path: '/revenu/bankstatement',
+         element: <Bankstatement />,
+      },
+      {
+        path:'/revenu/frombank',
+        element:<FromBanks/>
+
+      },
+      
       {
         path: '/lookup/revenu/Currency',
          element: <Currency />,

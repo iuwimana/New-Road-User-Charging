@@ -1,446 +1,298 @@
 import React, { Component } from 'react';
-//import Modal from './modal';
-import AddModal from './addroleModal';
-
+import { Col, Card, CardHeader, CardBody, Button, Dropdown } from 'react-bootstrap';
+import { FcPlus } from 'react-icons/fc';
 import { toast } from 'react-toastify';
-import { Link, NavLink } from 'react-router-dom';
-import * as Source from '../../../services/RevenuRessources/revenuCorrectionService';
-import * as RevProdData from '../../../services/RevenuRessources/revenuPaymentServices';
 import * as FiscalYear from '../../../services/RMFPlanning/fiscalYearService';
-import { FcCurrencyExchange } from 'react-icons/fc';
+import * as Advices from '../../../services/RevenuRessources/nfradviceservices';
 import Pagination from '../../common/pagination';
 import { paginate } from '../../../utils/paginate';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import SearchBox from '../../searchBox';
-import { FcPlus } from 'react-icons/fc';
 import _ from 'lodash';
-import './collection.css';
-import ListGroup from './../../common/listGroup';
-import { Card, CardHeader, CardBody, Col } from 'reactstrap';
-import './model.css';
+import AddModal from './addroleModal';
+import AddNewModal from './addNewModal';
+import withNavigation from '../../revenueCorrection/revenuCorrection/withNavigation';
 
-class RevenuCorrection extends Component {
+class RevenueCollection extends Component {
     constructor(props) {
         super(props);
-
-        this.replaceModalItem = this.replaceModalItem.bind(this);
-        this.saveModalDetails = this.saveModalDetails.bind(this);
         this.state = {
-            fiscalyearname: this.props.fiscalyearname,
-
-            revenuproductid: 0,
-            revenuproductname: '',
-            totaldeposit: 0,
-            currencyid: 0,
-            currencyname: '',
-            activeon: '',
-            sources: [],
-            services: [],
-            revprod: [],
-            revprods: [],
-            data: null,
             fiscalyearsid: 0,
-            fiscalyear: [],
+            fiscalyear: '',
+            sources: [],
+            responses: [],
+            totaldeposit: 0,
             currentPage: 1,
-            pageSize: 4,
-            requiredItem: 0,
-            brochure: [],
+            pageSize: 10,
             searchQuery: '',
-            selectedrole: null,
+            displaymsg: '',
+            loading: false,
+            downloading: false,
+            downloadingPDF: false,
+            downloadingExcel: false,
+            startDate: '',
+            endDate: '',
             showModaladd: false,
-            search: [],
-            sortColumn: { path: 'title', order: 'asc' },
+            showaddNewModal: false,
         };
     }
-    toggleModaladd = () => {
-        this.setState((prevState) => ({ showModaladd: !prevState.showModaladd }));
-    };
+
+    toggleModaladd = () => this.setState({ showModaladd: !this.state.showModaladd });
+    toggleModaladdNew = () => this.setState({ showaddNewModal: !this.state.showaddNewModal });
+
     async populateBanks() {
         try {
-            try {
-                const { data: fiscalyear } = await FiscalYear.getFiscalyears();
-                const response = await FiscalYear.getFiscalyears();
-                if (response) {
-                    const fiscalYears = response.data;
-                    this.setState({ data: response });
-                    const fiscalyearsid = fiscalYears.length > 0 ? fiscalYears[0].fiscalyearid : null; // Get the first fiscalyearid
-                    const fiscalyear = fiscalYears.map((year) => year.fiscalyear);
-                    //this.setState({ fiscalyearid, fiscalyear });
-                    this.setState({ fiscalyearsid, fiscalyear });
-                } else {
-                    toast.error('No Fiscal year find......' + fiscalyear);
-                }
-            } catch (ex) {
-                toast.error('current user data Loading issues......' + ex);
+            const response = await FiscalYear.getFiscalyears();
+            if (response?.data?.length > 0) {
+                const fiscalYears = response.data;
+                const fiscalyearsid = fiscalYears[0].fiscalyearid;
+                const fiscalyear = fiscalYears.map((year) => year.fiscalyear);
+                this.setState({ data: response, fiscalyearsid, fiscalyear });
+            } else {
+                toast.error('No Fiscal year found.');
             }
-        } catch (ex) {
-            toast.error('current user data Loading issues......' + ex);
+        } catch (error) {
+            console.error('Error loading fiscal years:', error);
+            toast.error('Error loading fiscal years. Please try again later.');
+            displaymsg = displaymsg + 'Error loading fiscal years:' + error;
+            this.setState({ displaymsg: displaymsg });
         }
     }
+
     async componentDidMount() {
+        this.setState({ loading: true });
         try {
             await this.populateBanks();
+            const fiscalyearid = this.state.fiscalyearsid;
+            const [{ data: sources }, { data: responses }] = await Promise.all([Advices.getnfradvicebyfiscalyear(fiscalyearid), Advices.getsumnfradvice(fiscalyearid)]);
 
-            if (this.state.fiscalyearsid === 0) {
-                await this.populateBanks();
-                const { data: revenupaymentByFiscalyear } = await RevProdData.getrevenupaymentByFiscalyear(this.state.fiscalyearsid);
-
-                const revprods = [{ revenuepaymentid: 0, revenueproductname: 'All Products' }, ...revenupaymentByFiscalyear];
-
-                this.setState({ revprods });
-
-                const { data: sources } = await Source.getrevenucorrectionByFiscalYearID(this.state.fiscalyearsid);
-                this.setState({ sources });
-
-                const deposit = [];
-                const amount = 0;
-                const deplist = sources.map((sources) => {
-                    deposit.push(sources.deposit);
-                });
-
-                this.setState({
-                    totaldeposit: deposit.reduce((accumulator, currentValue) => accumulator + currentValue, 0),
-                });
-            } else {
-                const { data: revenupaymentByFiscalyear } = await RevProdData.getrevenupaymentByFiscalyear(this.state.fiscalyearsid);
-
-                const revprods = [{ revenuepaymentid: 0, revenueproductname: 'All Products' }, ...revenupaymentByFiscalyear];
-
-                this.setState({ revprods });
-
-                const { data: sources } = await Source.getrevenucorrectionByFiscalYearID(this.state.fiscalyearsid);
-                this.setState({ sources });
-
-                const deposit = [];
-                const amount = 0;
-                const deplist = sources.map((sources) => {
-                    deposit.push(sources.deposit);
-                });
-
-                this.setState({
-                    totaldeposit: deposit.reduce((accumulator, currentValue) => accumulator + currentValue, 0),
-                });
-            }
-        } catch (ex) {
-            return toast.error('An Error 1 Occured, while fetching role data Please try again later' + ex);
+            const totaldeposit = responses?.[0]?.totaldeposit ?? 0;
+            this.setState({ sources: sources ?? [], responses: responses ?? [], totaldeposit, loading: false });
+        } catch (error) {
+            console.error('Error loading revenue data:', error);
+            displaymsg = displaymsg + 'Error loading revenue data:' + error;
+            this.setState({ displaymsg: displaymsg });
+            this.setState({ loading: false });
+            toast.error('Failed to fetch revenue data.');
+            displaymsg = displaymsg + 'Failed to fetch revenue data.:' + error;
+            this.setState({ displaymsg: displaymsg });
+            displaymsg = displaymsg + 'Failed to fetch revenue data.';
+            this.setState({ displaymsg: displaymsg });
         }
     }
-    handlePageChange = (page) => {
-        this.setState({ currentPage: page });
-    };
-    handleSearch = (query) => {
-        //const { search } = await Role.getRolesearched(query);
 
-        this.setState({ searchQuery: query, currentPage: 1 });
-    };
-    handleSort = (sortColumn) => {
-        this.setState({ sortColumn });
-    };
-    handleselect = (revprod) => {
-        this.setState({ selectedrole: revprod, searchQuery: '', currentPage: 1 });
-        const revenuproduct = JSON.stringify(revprod.revenuepaymentid);
-        const revenuproducts = JSON.stringify(revprod.revenueproductname);
-        const currencyid = JSON.stringify(revprod.currencyid);
-        const currencyname = JSON.stringify(revprod.currencyname);
-        const activeon = JSON.stringify(revprod.activeon);
-        this.setState({
-            revenuproductid: revenuproduct,
-            revenuproductname: revenuproducts,
-            currencyid: currencyid,
-            currencyname: currencyname,
-            activeon: activeon,
-        });
-        
-    };
+    handlePageChange = (page) => this.setState({ currentPage: page });
+    handleSearch = (e) => this.setState({ searchQuery: e.target.value, currentPage: 1 });
+
     getPagedData = () => {
-        const { pageSize, currentPage, sortColumn, searchQuery, selectedrole, sources: allsources } = this.state;
-
+        const { pageSize, currentPage, searchQuery, sources: allsources } = this.state;
         let filtered = allsources;
-        if (searchQuery)
-            filtered = allsources.filter(
-                (m) =>
-                    m.revenueproductname.toLowerCase().startsWith(searchQuery.toLowerCase()) ||
-                    m.paymentmodename.toLowerCase().startsWith(searchQuery.toLowerCase()) ||
-                    m.sourceoffundname.toLowerCase().startsWith(searchQuery.toLowerCase()) ||
-                    m.accountnumber.toLowerCase().startsWith(searchQuery.toLowerCase()) ||
-                    m.bankname.toLowerCase().startsWith(searchQuery.toLowerCase()) ||
-                    m.correctiondate.toLowerCase().startsWith(searchQuery.toLowerCase()) ||
-                    m.transactiondetails.toLowerCase().startsWith(searchQuery.toLowerCase()) ||
-                    // m.DocId.toLowerCase().startsWith(searchQuery.toLowerCase()) ||
-                    m.refnumber.toLowerCase().startsWith(searchQuery.toLowerCase()) ||
-                    m.correctiondate.toLowerCase().startsWith(searchQuery.toLowerCase()) ||
-                    m.poref.toLowerCase().startsWith(searchQuery.toLowerCase())
-            );
-        else if (selectedrole && selectedrole.revenuepaymentid) filtered = allsources.filter((m) => m.revenuepaymentid === selectedrole.revenuepaymentid);
-        ///////////////////////////////////////////
-        const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
-        const sources = paginate(sorted, currentPage, pageSize);
 
+        if (searchQuery) {
+            filtered = allsources.filter((m) => [m.revenueproductname, m.advice, m.name, m.paymentdate].join(' ').toLowerCase().includes(searchQuery.toLowerCase()));
+        }
+
+        const sorted = _.orderBy(filtered, ['name'], ['asc']);
+        const sources = paginate(sorted, currentPage, pageSize);
         return { totalCount: filtered.length, data: sources };
     };
-    replaceModalItem(index) {
-        this.setState({
-            requiredItem: index,
-        });
-    }
-
-    async fiscalyearidHandler(e) {
-        this.setState({ fiscalyearid: e.target.value });
-        await this.componentDidMount();
-
-        this.setState({ fiscalyearname: ' ' });
-    }
-
-    saveModalDetails(sources) {
-        const requiredItem = this.state.requiredItem;
-        let tempbrochure = this.state.sources;
-        tempbrochure[requiredItem] = sources;
-        this.setState({ sources: tempbrochure });
-    }
-
-    async deleteItem(RevenueCorrectionId) {
-        //const { user } = this.state;
-
-        try {
-            if (!RevenueCorrectionId) {
-                toast.info(`the Revenue Correction you selected  doesnot exist`);
-            } else {
-                await Source.deleterevenucorrection(RevenueCorrectionId);
-                toast.success(`this revenu Correction has been deleted successful`);
-            }
-        } catch (ex) {
-            if (ex.response && ex.response.status === 400) {
-                const errors = { ...this.state.errors };
-                errors.rolename = ex.response.data;
-                toast.error('Error:' + errors.rolename);
-                this.setState({ errors });
-            } else if (ex.response && ex.response.status === 409) {
-                const errors = { ...this.state.errors };
-                errors.rolename = ex.response.data;
-                toast.error('Error:' + errors.rolename);
-                this.setState({ errors });
-            } else {
-                toast.error('An Error Occured, while saving revenu Correction Please try again later');
-            }
+    handleDownloadExcel = async () => {
+        const { fiscalyearsid, startDate, endDate } = this.state;
+        if (!fiscalyearsid) {
+            toast.warn('Please refresh to reload Fiscal year');
+            displaymsg = displaymsg + 'Please refresh to reload Fiscal year';
+            this.setState({ displaymsg: displaymsg });
+            return;
         }
-    }
-    handlecall() {
-        const revenuproductid = this.state.revenuproductid;
-        const revenuproductname = this.state.revenuproductname;
-        const currencyid = this.state.currencyid;
-        const currencyname = this.state.currencyname;
-        const activeon = this.state.activeon;
-        navigate('/revenu/Revupload', { state: { revenuproductid, revenuproductname, currencyid, currencyname, activeon } });
-    }
-    replaceModalItemUpdate(revenuproductid, revenuproductname, currencyid, currencyname, activeon) {
-      
-        this.setState({
-            revenuproductid: revenuproductid,
-            revenuproductname: revenuproductname,
-            currencyid: currencyid,
-            currencyname: currencyname,
-            activeon: activeon,
-        });
-        this.setState((prevState) => ({ showModaladd: !prevState.showModaladd }));
-        
-    }
+
+        if (!startDate || !endDate) {
+            toast.warn('Please select both start and end dates.');
+            displaymsg = displaymsg + 'Please select both start and end dates.';
+            this.setState({ displaymsg: displaymsg });
+            return;
+        }
+        this.setState({ downloadingExcel: true });
+        try {
+            const response = await Advices.getExportExcelbydate(fiscalyearsid, startDate, endDate);
+            // const url = window.URL.createObjectURL(new Blob([response.data]));
+            // const link = document.createElement('a');
+            // link.href = url;
+            // link.setAttribute('download', `Revenue_Report_${startDate}_${endDate}.xlsx`);
+            // document.body.appendChild(link);
+            // link.click();
+            // link.remove();
+            toast.success('Excel file downloaded successfully.');
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to download Excel file.');
+        } finally {
+            this.setState({ downloadingExcel: false });
+        }
+    };
+
+    handleDownloadPDF = async () => {
+        const { fiscalyearsid, startDate, endDate } = this.state;
+
+        if (!fiscalyearsid) {
+            toast.warn('Please refresh to reload Fiscal year');
+            displaymsg = displaymsg + 'Please refresh to reload Fiscal year';
+            this.setState({ displaymsg: displaymsg });
+            return;
+        }
+
+        if (!startDate || !endDate) {
+            toast.warn('Please select both start and end dates.');
+            displaymsg = displaymsg + 'Please select both start and end dates.';
+            this.setState({ displaymsg: displaymsg });
+            return;
+        }
+
+        this.setState({ downloadingPDF: true });
+        try {
+            const response = await Advices.getExportPDFbydate(fiscalyearsid, startDate, endDate);
+            // const url = window.URL.createObjectURL(new Blob([response.data]));
+            // const link = document.createElement('a');
+            // link.href = url;
+            // link.setAttribute('download', `Revenue_Report_${startDate}_${endDate}.pdf`);
+            // document.body.appendChild(link);
+            // link.click();
+            // link.parentNode.removeChild(link);
+
+            toast.success('PDF downloaded successfully.');
+        } catch (error) {
+            console.error('PDF download error:', error);
+            toast.error('Failed to download PDF.');
+        } finally {
+            this.setState({ downloadingPDF: false });
+        }
+    };
 
     render() {
-        const { length: count } = this.state.sources;
-        const { pageSize, currentPage, selectedrole, searchQuery, sources: allsources } = this.state;
-
         const { totalCount, data: sources } = this.getPagedData();
-        const countproduct = this.state.revenuproductid;
-        const fiscalyear = this.state.fiscalyear;
-        const brochure = sources.map((sources, index) => {
-            return (
-                <tr key={sources.revenuecorrectionid}>
-                    <td>{sources.revenueproductname}</td>
-                    {/*<td>{sources.bordername}</td>*/}
-                    {/* <td>{sources.sourceoffundname}</td>*/}
-                    <td>{sources.accountnumber}</td>
-                    <td>{sources.bankname}</td>
-                    <td>{sources.correctiondate}</td>
-                    <td>{sources.deposit}</td>
-                </tr>
-            );
-        });
+        const { loading, downloading, fiscalyear, totaldeposit, searchQuery, startDate, endDate, currentPage, pageSize, displaymsg } = this.state;
 
-        const requiredItem = this.state.requiredItem;
-        let modalData = this.state.sources[requiredItem];
         return (
-            <div
-                style={{
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
-                <Col
-                    style={{
-                        textAlign: 'center',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                >
-                    <Col
-                        style={{
-                            alignItems: 'center',
-                            display: 'flex',
-                            justifyContent: 'center',
-                        }}
-                    ></Col>
-                    <Card className=" shadow border-0">
-                        <CardHeader className="bg-transparent ">
-                            <div data-layer="20c15a3f-13e0-4171-8397-666e3afce4eb" className="rectangle9">
-                                <div data-layer="20c15a3f-13e0-4171-8397-666e3afce4eb" className="revPr">
-                                    <div className="row">
-                                        <big style={{ fontSize: 28 }}>revenu collection</big>
-                                    </div>
-                                    <div className="row">
-                                        @{this.state.revenuproductname}
-                                        {'- on fiscay Year - ' + this.state.fiscalyear}
-                                    </div>
-                                </div>
-                                <div data-layer="20c15a3f-13e0-4171-8397-666e3afce4eb" className="revsum">
-                                    Total revenu collected <big style={{ fontSize: 28 }}> {new Intl.NumberFormat().format(this.state.totaldeposit) + ' ' + 'Rwf'}</big>
-                                </div>
+            <div className="container-fluid py-3">
+                <Col className="text-center">
+                    <Card className="shadow border-0">
+                        <CardHeader className="bg-white d-flex flex-column flex-md-row justify-content-between align-items-center">
+                            <div>
+                                <h2 className="text-primary mb-1">NFR Advice Collection</h2>
+                                <small className="text-muted">Fiscal Year: {fiscalyear}</small>
                             </div>
-                            <svg data-layer="503cdd18-2d99-4021-824e-3d8e0cce609d" preserveAspectRatio="none" viewBox="0 0 82 83" className="ellipse3">
-                                <FcCurrencyExchange />
-                            </svg>
-                            <div className="btn-wrapper text-center"></div>
+                            <div className="text-end">
+                                <p className="text-muted mb-0">Total Revenue Collected</p>
+                                <h3 className="text-success fw-bold">{new Intl.NumberFormat().format(totaldeposit)} USD</h3>
+                            </div>
                         </CardHeader>
-                        <CardBody className="px-lg-6 py-lg-6">
-                            <div className="row">
-                                <div className="col-5">
-                                    <div style={{ height: 380, width: 10 }}>
-                                        <ListGroup
-                                            items={this.state.revprods}
-                                            textProperty="revenueproductname"
-                                            valueProperty="revenuepaymentid"
-                                            selectedItem={this.state.selectedrole}
-                                            onItemSelect={this.handleselect}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="col-5">
-                                    <div>
-                                        <div>
-                                            {count === 0 && (
-                                                <>
-                                                    {countproduct && countproduct !== '0' && (
-                                                        <>
-                                                            <button
-                                                                className="btn btn-primary"
-                                                                onClick={() =>
-                                                                    this.replaceModalItemUpdate(
-                                                                        this.state.revenuproductid,
-                                                                        this.state.revenuproductname,
-                                                                        this.state.currencyid,
-                                                                        this.state.currencyname,
-                                                                        this.state.activeon
-                                                                    )
-                                                                }
-                                                            >
-                                                                <FcPlus /> AddRevenus
-                                                            </button>{' '}
-                                                            {/** 
-                                                            <NavLink
-                                                                to={{
-                                                                    pathname: '/revenu/Revupload',
-                                                                    state: {
-                                                                        revenuproductid: this.state.revenuproductid,
-                                                                        revenuproductname: this.state.revenuproductname,
-                                                                        currencyid: this.state.currencyid,
-                                                                        currencyname: this.state.currencyname,
-                                                                        activeon: this.state.activeon,
-                                                                    },
-                                                                }}
-                                                                exact
-                                                                className="btn btn-success"
-                                                            >
-                                                                <FcPlus />
-                                                                AddRevenus
-                                                            </NavLink>
-                                                            */}
-                                                        </>
-                                                    )}
-                                                    <p>There are revenu correction Payment in Database.</p>
-                                                </>
-                                            )}
-                                            {count !== 0 && (
-                                                <>
-                                                    {countproduct && countproduct !== '0' && (
-                                                        <>
-                                                            <button
-                                                                className="btn btn-primary"
-                                                                onClick={() =>
-                                                                    this.replaceModalItemUpdate(
-                                                                        this.state.revenuproductid,
-                                                                        this.state.revenuproductname,
-                                                                        this.state.currencyid,
-                                                                        this.state.currencyname,
-                                                                        this.state.activeon
-                                                                    )
-                                                                }
-                                                            >
-                                                                <FcPlus /> AddRevenus
-                                                            </button>{' '}
-                                                            {/** 
-                                                            <NavLink
-                                                                to={{
-                                                                    pathname: '/revenu/Revupload',
-                                                                    state: {
-                                                                        revenuproductid: this.state.revenuproductid,
-                                                                        revenuproductname: this.state.revenuproductname,
-                                                                        currencyid: this.state.currencyid,
-                                                                        currencyname: this.state.currencyname,
-                                                                        activeon: this.state.activeon,
-                                                                    },
-                                                                }}
-                                                                className="btn btn-success"
-                                                            >
-                                                                <FcPlus />
-                                                                AddRevenu
-                                                            </NavLink>
-                                                            */}
-                                                        </>
-                                                    )}
 
-                                                    <div style={{ textAlign: 'center' }}>
-                                                        <SearchBox value={searchQuery} onChange={this.handleSearch} />
-                                                    </div>
-                                                    <div className="table-responsive mb-5">
-                                                        <table className="table">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>Product</th>
-                                                                    <th>Account </th>
-                                                                    <th>Bank</th>
-                                                                    <th>Service Period</th>
-                                                                    <th>Deposit</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>{brochure}</tbody>
-                                                        </table>
-                                                    </div>
-                                                </>
-                                            )}
-                                            <AddModal
-                                                revenuproductid={this.state.revenuproductid}
-                                                revenuproductname={this.state.revenuproductname}
-                                                currencyid={this.state.currencyid}
-                                                activeon={this.state.activeon}
-                                                currencyname={this.state.currencyname}
-                                                saveModalDetails={this.saveModalDetails}
-                                                show={this.state.showModaladd}
-                                                onClose={this.toggleModaladd}
-                                            />
-                                            <Pagination itemsCount={totalCount} pageSize={pageSize} currentPage={currentPage} onPageChange={this.handlePageChange} />
-                                        </div>
-                                    </div>
+                        <CardBody className="bg-light">
+                            {/* --- Action Dropdown --- */}
+                            <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3">
+                                <Dropdown>
+                                    <Dropdown.Toggle
+                                                                                                    variant="primary"
+                                                                                                    id="nfrAdviceDropdown"
+                                                                                                    className="!rounded-full !px-4 !py-2 flex items-center gap-2 shadow hover:scale-[1.03] transition-all duration-200"
+                                                                                                    style={{ height: '50px', width: '90px', borderRadius: '20%' }}
+                                                                                                >
+                                                                                                    Action <FcPlus size={40} />
+                                                                                                </Dropdown.Toggle>
+                                    <Dropdown.Menu>
+                                        <Dropdown.Item onClick={this.toggleModaladd}>Load Data</Dropdown.Item>
+                                        <Dropdown.Item onClick={this.toggleModaladdNew}>Add New</Dropdown.Item>
+                                    </Dropdown.Menu>
+                                </Dropdown>
+                            </div>
+
+                            {/* --- Search and Date Filters --- */}
+                            <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3 gap-2">
+                                <input type="text" className="form-control" placeholder="🔍 Search..." value={searchQuery} onChange={this.handleSearch} />
+                                <div className="d-flex gap-2 align-items-center">
+                                    <input type="date" className="form-control" value={startDate} onChange={(e) => this.setState({ startDate: e.target.value })} />
+                                    <input type="date" className="form-control" value={endDate} onChange={(e) => this.setState({ endDate: e.target.value })} />
+                                    {displaymsg}
+                                    <Dropdown>
+                                        {this.state.downloadingPDF || this.state.downloadingExcel ? (
+                                            <Dropdown.Toggle variant="success" id="downloadDropdown" disabled>
+                                                <span className="spinner-border spinner-border-sm me-2"></span>
+                                                {this.state.downloadingPDF ? 'Downloading PDF...' : 'Downloading Excel...'}
+                                            </Dropdown.Toggle>
+                                        ) : (
+                                            <>
+                                                <Dropdown.Toggle variant="success" id="downloadDropdown">
+                                                    📥 Download
+                                                </Dropdown.Toggle>
+                                                <Dropdown.Menu>
+                                                    <Dropdown.Item onClick={this.handleDownloadPDF} disabled={this.state.downloadingPDF}>
+                                                        {this.state.downloadingPDF ? (
+                                                            <>
+                                                                <span className="spinner-border spinner-border-sm me-2"></span>
+                                                                Downloading PDF...
+                                                            </>
+                                                        ) : (
+                                                            'Download PDF'
+                                                        )}
+                                                    </Dropdown.Item>
+
+                                                    <Dropdown.Item onClick={this.handleDownloadExcel} disabled={this.state.downloadingExcel}>
+                                                        {this.state.downloadingExcel ? (
+                                                            <>
+                                                                <span className="spinner-border spinner-border-sm me-2"></span>
+                                                                Downloading Excel...
+                                                            </>
+                                                        ) : (
+                                                            'Download Excel'
+                                                        )}
+                                                    </Dropdown.Item>
+                                                </Dropdown.Menu>
+                                            </>
+                                        )}
+                                    </Dropdown>
                                 </div>
                             </div>
+
+                            {/* --- Table --- */}
+                            {loading ? (
+                                <div className="text-center py-5">
+                                    <div className="spinner-border text-primary mb-3" role="status"></div>
+                                    <p>Loading data, please wait...</p>
+                                </div>
+                            ) : sources.length === 0 ? (
+                                <div className="alert alert-warning text-center">No revenue records found for this fiscal year.</div>
+                            ) : (
+                                <div className="table-responsive shadow-sm rounded">
+                                    <table className="table table-hover align-middle">
+                                        <thead className="table-primary text-dark">
+                                            <tr>
+                                                <th>Product</th>
+                                                <th>Advice</th>
+                                                <th>Name</th>
+                                                <th>Service Period</th>
+                                                <th>Deposit</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {sources.map((s, index) => (
+                                                <tr key={index}>
+                                                    <td>{s.revenueproductname}</td>
+                                                    <td>{s.advice}</td>
+                                                    <td>{s.name}</td>
+                                                    <td>{s.paymentdate}</td>
+                                                    <td className="fw-semibold text-end">{new Intl.NumberFormat().format(s.amount)}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+
+                            {/* --- Pagination --- */}
+                            <div className="d-flex justify-content-center mt-3">
+                                <Pagination itemsCount={totalCount} pageSize={pageSize} currentPage={currentPage} onPageChange={this.handlePageChange} />
+                            </div>
+
+                            {/* --- Modals --- */}
+                            <AddModal show={this.state.showModaladd} onClose={this.toggleModaladd} />
+                            <AddNewModal show={this.state.showaddNewModal} onClose={this.toggleModaladdNew} />
                         </CardBody>
                     </Card>
                 </Col>
@@ -449,4 +301,4 @@ class RevenuCorrection extends Component {
     }
 }
 
-export default RevenuCorrection;
+export default withNavigation(RevenueCollection);

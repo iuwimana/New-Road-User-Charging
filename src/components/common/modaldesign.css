@@ -1,0 +1,48 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+}
+.btn-close:hover {
+  color: red;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 600px;
+  max-width: 90%;
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.btn-close {
+  background: none;
+  border: none; /* remove invalid border */
+  color: hsl(0, 25%, 98%);
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* modal.css */
+.modal-custom {
+  max-width: 90%;  /* width as 90% of viewport */
+  width: 100%;
+}
+
+.modal-custom .modal-content {
+  min-height: 70vh; /* optional: make it taller */
+}

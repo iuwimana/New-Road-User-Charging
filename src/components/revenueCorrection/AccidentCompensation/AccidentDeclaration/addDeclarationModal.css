@@ -1,0 +1,97 @@
+/* Backdrop covers full screen */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6); /* darker for better visibility */
+  z-index: 1040;
+}
+.btn-close {
+  background: none;
+  border: none; /* remove invalid border */
+  color: hsl(0, 25%, 98%);
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+/* Modal dialog - larger and more centered */
+.modal-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90vw;             /* 90% of the screen width */
+  max-width: 1200px;       /* optional upper limit */
+  height: auto;
+  z-index: 1050;
+  margin: 0;               /* remove Bootstrap default margins */
+}
+
+/* Modal content */
+.modal-content {
+  border-radius: 14px;
+  padding: 20px;
+  background: #ffffff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  max-height: 90vh;        /* don't exceed viewport height */
+  min-width: 120vh;
+  overflow-y: auto;
+}
+
+/* Header */
+.modal-header {
+  background: linear-gradient(90deg, #0663ee, #f6fafd);
+  color: #fff;
+  border-bottom: 3px solid #0d0d0e;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.modal-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+/* Modal body */
+.modal-body {
+  padding: 1.5rem;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Better form styling */
+.add-declaration-modal .form-label {
+  font-weight: 600;
+}
+
+.add-declaration-modal .form-control,
+.add-declaration-modal .form-select {
+  border-radius: 8px;
+  padding: 10px;
+  transition: all 0.2s ease;
+}
+
+.add-declaration-modal .form-control:focus,
+.add-declaration-modal .form-select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Buttons */
+.add-declaration-modal .btn-primary {
+  min-width: 120px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.add-declaration-modal .btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #004085;
+}
+
+/* Optional spacing */
+.add-declaration-modal .row.g-3 > div {
+  margin-bottom: 15px;
+}

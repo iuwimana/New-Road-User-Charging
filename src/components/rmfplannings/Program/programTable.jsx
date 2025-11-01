@@ -1,133 +1,108 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardHeader, CardBody, Col } from 'reactstrap';
 import { FcPlus } from 'react-icons/fc';
+import { Button, Modal, Tooltip, OverlayTrigger } from 'react-bootstrap';
 import useOpenController from './Hooks/useOpenController';
 import { TableSection } from './TableSection.jsx';
 import * as Program from '../../../services/RMFPlanning/programServices';
 import * as SubProgram from '../../../services/RMFPlanning/subProgramService';
-import { Modal, Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import AddModal from './addroleModal';
 import { toast } from 'react-toastify';
 import './model.css';
+
 const ProgramTable = () => {
-    const { isOpen, toggle } = useOpenController(false);
-    const { isLoading, setIsLoading } = useState(true);
-    const [program, setProgram] = useState([]);
-    const [subProgram, setSubProgram] = useState([]);
-    //----------------------model call
+  const { isOpen, toggle } = useOpenController(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [program, setProgram] = useState([]);
+  const [subProgram, setSubProgram] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
 
-    const [showModal, setShowModal] = useState(false);
+  const handleCloseprogram = () => setModalOpen(false);
+  const handleShowsubprogram = () => setModalOpen(true);
 
-    const toggleModal = () => {
-        setShowModal(!showModal);
+  useEffect(() => {
+    const fetchProgram = async () => {
+      try {
+        const { data } = await Program.getprograms();
+        setProgram(data);
+        const { datas } = await SubProgram.getsubprograms();
+        setSubProgram(datas);
+      } catch {
+        toast.error('Error loading data. Please refresh.');
+      } finally {
+        setIsLoading(false);
+      }
     };
-    const [modalOpen, setModalOpen] = useState(false);
-    const handleCloseprogram = () => setModalOpen(false);
-    const handleShowsubprogram = () => setModalOpen(true);
-    //---------------------------------------
-    try {
-        useEffect(() => {
-            const fetchProgram = async () => {
-                try {
-                    const { data } = await Program.getprograms();
-                    setProgram(data);
-                    const { datas } = await SubProgram.getsubprograms();
-                    setSubProgram(datas);
-                } catch (ex) {
-                    toast.error('Loading issues......');
-                }
-            };
-            fetchProgram();
-        }, []);
-    } catch (ex) {
-        toast.error('Loading issues......');
-    }
-    return (
-        <div
-            style={{
-                alignItems: 'center',
-                justifyContent: 'center',
-            }}
-        >
-            <Col
-                style={{
-                    textAlign: 'center',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
-                <Col
-                    style={{
-                        alignItems: 'center',
-                        display: 'flex',
-                        justifyContent: 'center',
-                    }}
-                ></Col>
+    fetchProgram();
+  }, []);
 
-                <Card className=" shadow border-0">
-                    <CardHeader className="bg-transparent ">
-                        <div className="text-muted text-center mt-2 mb-3"></div>
-                        <div className="btn-wrapper text-center"></div>
-                    </CardHeader>
-                    <CardBody className="px-lg-5 py-lg-5">
-                        <div className="table-responsive mb-5">
-                            <table>
-                                <thead>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th>
-                                        <div
-                                            style={{
-                                                textAlign: 'center',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                            }}
-                                        >
-                                            AddProgram
-                                            <button 
-                                            className="btn text-warning btn-act"
-                                             data-toggle="addsubprogrammodal"
-                                            onClick={handleShowsubprogram}>
-                                                <FcPlus />
-                                            </button>
-                                        </div>
-                                        {/**
-                                         * <AddModal  />
-                                         */}
+  return (
+    <div className="container py-4">
+      <Col className="mx-auto">
+        <Card className="shadow-lg border-0 rounded-4 overflow-hidden">
+          <CardHeader className="bg-gradient text-white text-center py-3" style={{ backgroundColor: '#0066cc' }}>
+            <h4 className="fw-bold mb-0">📘 Annual Action Plan</h4>
+          </CardHeader>
 
-                                        <Modal show={modalOpen} onHide={handleCloseprogram}>
-                                            <Modal.Header closeButton>
-                                                <Modal.Title>Add Program </Modal.Title>
-                                                
-                                            </Modal.Header>
+          <CardBody className="p-4 bg-light">
+            <div className="d-flex justify-content-end mb-3">
+              <OverlayTrigger placement="top" overlay={<Tooltip>Add a new Program</Tooltip>}>
+                <Button variant="outline-primary" size="sm" onClick={handleShowsubprogram} className="d-flex align-items-center gap-1">
+                  <FcPlus /> <span>Add Program</span>
+                </Button>
+              </OverlayTrigger>
+            </div>
 
-                                            <Modal.Body>
-                                                <AddModal />
-                                            </Modal.Body>
-                                            <Modal.Footer>
-                                                <Button variant="secondary" onClick={handleCloseprogram}>
-                                                    Close
-                                                </Button>
-                                            </Modal.Footer>
-                                        </Modal>
-                                    </th>
-                                </thead>
+            <div className="table-responsive">
+              <table className="table table-hover table-striped align-middle text-center shadow-sm">
+                <thead className="table-primary">
+                  <tr>
+                    <th></th>
+                    <th>Program Name</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {isLoading ? (
+                    <tr><td colSpan="4">Loading...</td></tr>
+                  ) : (
+                    program.map((p) => (
+                      <TableSection
+                        key={p.programid}
+                        programname={p.programname}
+                        description={p.description}
+                        index={p.programid}
+                      />
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </CardBody>
+        </Card>
+      </Col>
 
-                                {program.map((program) => (
-                                    <TableSection programname={program.programname} description={program.description} index={program.programid} />
-                                ))}
-                            </table>
-                        </div>
-                    </CardBody>
-                </Card>
-            </Col>
-        </div>
-    );
+      {/* Add Program Modal */}
+      <Modal
+        show={modalOpen}
+        onHide={handleCloseprogram}
+        size="lg"
+        centered
+        className="fade"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title className="fw-semibold text-primary">Add Program</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="bg-light">
+          <AddModal />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseprogram}>Close</Button>
+        </Modal.Footer>
+      </Modal>
+    </div>
+  );
 };
 
 export default ProgramTable;

@@ -1,37 +1,84 @@
-/* Pagination.css */
+/* Pagination container */
 .pagination {
-    display: flex;
-    list-style: none;
-    padding: 0;
-  }
-  
-  .pagination li {
-    margin: 0 5px;
-  }
-  
-  .pagination li a {
-    padding: 10px 15px;
-    text-decoration: none;
-    color: #007bff;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
-  }
-  
-  .pagination li a:hover {
-    background-color: #007bff;
-    color: white;
-  }
-  
-  .pagination li a.active {
-    background-color: #007bff;
-    color: white;
-  }
-  
-  .pagination li.disabled a {
-    color: #6c757d;
-    pointer-events: none;
-    cursor: not-allowed;
-  }
-  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px; /* Spacing between pagination items */
+  padding: 10px 0;
+  list-style: none;
+  margin: 20px 0;
+}
+
+/* General styling for all pagination items */
+.page-item {
+  margin: 0;
+}
+
+/* Styling for page links (numbers, Previous, Next) */
+.page-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  font-size: 11px;
+  color: #007bff; /* Blue text color */
+  background-color: #fff; /* White background */
+  border: 1px solid #dee2e6; /* Light gray border */
+  border-radius: 4px; /* Rounded corners */
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease; /* Smooth transition for hover effects */
+}
+
+/* Hover effect for page links */
+.page-link:hover {
+  background-color: #f0f0f0; /* Light gray background on hover */
+  border-color: #007bff; /* Blue border on hover */
+}
+
+/* Active page styling */
+.page-item.active .page-link {
+  color: #fff; /* White text for active page */
+  background-color: #007bff; /* Blue background for active page */
+  border-color: #007bff; /* Blue border for active page */
+}
+
+/* Disabled state for Previous and Next buttons */
+.page-item.disabled .page-link {
+  color: #6c757d; /* Gray text for disabled items */
+  background-color: #f8f9fa; /* Light gray background for disabled items */
+  border-color: #dee2e6; /* Light gray border for disabled items */
+  cursor: not-allowed; /* Disable pointer events */
+}
+
+/* Ellipsis styling */
+.page-item.disabled .page-link.ellipsis {
+  background-color: transparent;
+  border: none;
+  cursor: default;
+}
+
+/* Specific styling for Previous and Next buttons */
+.page-item:first-child .page-link,
+.page-item:last-child .page-link {
+  font-weight: bold; /* Bold text for better visibility */
+  padding: 8px 16px; /* Slightly larger padding for better clickability */
+  background-color: #007bff; /* Blue background */
+  color: #fff; /* White text */
+  border: 1px solid #007bff; /* Blue border */
+}
+
+/* Hover effect for Previous and Next buttons */
+.page-item:first-child .page-link:hover,
+.page-item:last-child .page-link:hover {
+  background-color: #0056b3; /* Darker blue background on hover */
+  border-color: #0056b3; /* Darker blue border on hover */
+}
+
+/* Disabled state for Previous and Next buttons */
+.page-item:first-child.disabled .page-link,
+.page-item:last-child.disabled .page-link {
+  background-color: #f8f9fa; /* Light gray background for disabled state */
+  color: #6c757d; /* Gray text for disabled state */
+  border-color: #dee2e6; /* Light gray border for disabled state */
+}

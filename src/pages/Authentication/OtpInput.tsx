@@ -35,6 +35,7 @@ export default function OtpInput() {
 let currentOTPIndex: number=0;
 const location = useLocation();
 const { Email, password } = location.state || {};
+toast.success(`my email is ${Email}`); 
     //------------------------------------------------------------
     const dispatch = useDispatch();
     useEffect(() => {
@@ -103,8 +104,10 @@ const { Email, password } = location.state || {};
  
 
     const handleSubmit = async() => {
-    try {    
+    try {   
+        
         const verify = await auth.verify(Email,otpA);
+        
         const verified=JSON.stringify(verify.data.verified)
         if(verify.data.verified){
            

@@ -1,431 +1,220 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
+import * as XLSX from 'xlsx';
 import * as Product from '../../../services/RevenuRessources/productServices';
 import * as Payment from '../../../services/RevenuRessources/revenuPaymentServices';
 import * as BorderData from '../../../services/RevenuRessources/nationalborderservices';
-import * as Correction from '../../../services/RevenuRessources/revenuCorrectionService';
+import * as Correction from '../../../services/RevenuRessources/nfradviceservices';
 import { toast } from 'react-toastify';
 import * as auth from '../../../services/authService';
 import Pagination from '../../common/pagination';
 import { paginate } from '../../../utils/paginate';
 import * as FiscalYear from '../../../services/RMFPlanning/fiscalYearService';
+import Spinner from './Spinner';
 import PropTypes from 'prop-types';
-import { Card, CardFooter, CardHeader, CardBody, Col } from 'reactstrap';
-import { format, parseISO } from 'date-fns';
+import { Card, CardHeader, CardBody, Col, Button, Form, FormGroup, Label, Input } from 'reactstrap';
+import { format } from 'date-fns';
 
-class AddroleModal extends Component {
-    constructor(props) {
-        super(props);
-        this.handleSave = this.handleSave.bind(this);
-        this.state = {
-            data: {
-                RevenueCorrectionId: 0,
-                borderid: 0,
-                bordername: '',
-                RevenueProductId: 0,
-                RevenuePaymentId: 0,
-                CorrectionDate: '',
-                RefNumber: {},
-                TransactionDetails: {},
-                Deposit: {},
-                PoRef: {},
-                DocId: {},
-            },
-            GivenDate: '',
-            value: 1,
-            currencyid: 0,
-            currencyname: '',
-            revenuproductid: 0,
-            revenuproductname: '',
-            activeon: '',
-            CurrentDate: '',
-            isactif: true,
-            nametochek: 'sibo',
-            fiscalyearsid: 0,
-            fiscalyear: '',
-            loadData: [],
-            user: {},
-            ParsedData: [],
-            borders: [],
-            TableRows: [],
-            Values: [],
-            product: [],
-            sources: [],
-            payment: [],
-            paymentModes: [],
-            errors: {},
-            currentPage: 1,
-            pageSize: 4,
-            requiredItem: 0,
-            brochure: [],
-            searchQuery: '',
-            selectedrole: null,
-            search: [],
-            sortColumn: { path: 'title', order: 'asc' },
-        };
-    }
+const AddroleModal = ({ show, onClose, revenuproductid: propProductId, revenuproductname: propProductName, currencyid: propCurrencyId, currencyname: propCurrencyName, activeon: propActiveOn, onDataUploaded }) => {
+    const [loading, setLoading] = useState(false);
+    const [ParsedData, setParsedData] = useState([]);
+    const [TableRows, setTableRows] = useState([]);
+    const [Values, setValues] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize] = useState(5);
+    const [payment, setPayment] = useState([]);
+    const [product, setProduct] = useState([]);
+    const [borders, setBorders] = useState([]);
+    const [revenuepaymentid, setRevenuePaymentId] = useState('');
+    const [fiscalyearsid, setFiscalyearId] = useState(null);
+    const [fiscalyear, setFiscalYear] = useState([]);
+    const [user, setUser] = useState({});
+    const [CurrentDate, setCurrentDate] = useState('');
 
-    componentWillReceiveProps(nextProps) {
-        this.setState({
-            revenuproductid: nextProps.revenuproductid,
-            revenuproductname: nextProps.revenuproductname,
-            currencyid: nextProps.currencyid,
-            currencyname: nextProps.currencyname,
-            activeon: nextProps.activeon,
-        });
-    }
+    useEffect(() => {
+        if (show) {
+            populateData();
+            const currentUser = auth.getJwt();
+            setUser(currentUser);
+        }
+    }, [show]);
 
-    async populateBanks() {
+    const populateData = async () => {
         try {
-            const { data: product } = await Product.getrevenuproducts();
-            const { data: payment } = await Payment.getrevenupayments();
-            const { data: borders } = await BorderData.getnationalborders();
+            const { data: productData } = await Product.getrevenuproducts();
+            const { data: paymentData } = await Payment.getrevenupayments();
+            const { data: borderData } = await BorderData.getnationalborders();
 
-            this.setState({ product, payment, borders });
+            setProduct(productData);
+            setBorders(borderData);
 
-            const { data: fiscalyear } = await FiscalYear.getFiscalyears();
-            const response = await FiscalYear.getFiscalyears();
-            if (response) {
-                const fiscalYears = response.data;
-                this.setState({ data: response });
-                const fiscalyearsid = fiscalYears.length > 0 ? fiscalYears[0].fiscalyearid : null; // Get the first fiscalyearid
-                const fiscalyear = fiscalYears.map((year) => year.fiscalyear);
-                //this.setState({ fiscalyearid, fiscalyear });
-                this.setState({ fiscalyearsid, fiscalyear });
+            const fiscalResponse = await FiscalYear.getFiscalyears();
+            if (fiscalResponse && fiscalResponse.data.length > 0) {
+                setFiscalYear(fiscalResponse.data.map((y) => y.fiscalyear));
+                setFiscalyearId(fiscalResponse.data[0].fiscalyearid);
+
+                const { data: paymentByYear } = await Payment.getrevenupaymentByFiscalyear(fiscalResponse.data[0].fiscalyearid);
+                setPayment(paymentByYear);
             } else {
-                toast.error('No Fiscal year find......' + fiscalyear);
+                toast.error('No Fiscal year found');
             }
-            const fiscalyearid = this.state.fiscalyearsid;
-            const revenuproductid = this.state.revenuproductid;
-            const revenuproductname = this.state.revenuproductname;
-            const currencyid = this.state.currencyid;
-            const currencyname = this.state.currencyname;
-            const activeon = this.state.activeon;
-            //const currentDate = new Date().toDateString();
-            var CurrentDate = new Date();
-            CurrentDate.setHours(0, 0, 0, 0);
-            // const formattedDate = `${CurrentDate.getDate()}-${CurrentDate.getMonth() + 1}-${CurrentDate.getFullYear()}`;
-            const formattedCurrentDate = format(new Date(CurrentDate), 'yyyy-MM-dd');
-            this.setState({ CurrentDate: formattedCurrentDate });
-            //const GivenDate = new Date(activeon);
-            // GivenDate.setHours(0, 0, 0, 0);
-            //const GivenDate = new Date(activeon);
-            //const localISOString = GivenDate.toISOString();
-            
 
-            this.setState({
-                fiscalyearid,
-                revenuproductid,
-                revenuproductname,
-                currencyid,
-                currencyname,
-                activeon,
+            setRevenuePaymentId(propProductId || '');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            setCurrentDate(format(today, 'yyyy-MM-dd'));
+        } catch (ex) {
+            toast.error('Error loading data: ' + ex);
+        }
+    };
+
+    const handleFileChange = (event) => {
+        const file = event.target.files[0];
+        if (!file) return toast.error('No file selected.');
+
+        const fileType = file.name.split('.').pop().toLowerCase();
+
+        if (fileType === 'csv') {
+            Papa.parse(file, {
+                header: true,
+                skipEmptyLines: true,
+                complete: (results) => handleParsedData(results.data),
+                error: (error) => toast.error('Error parsing CSV: ' + error.message),
             });
-        } catch (ex) {
-            toast.error('Loading issues......' + ex);
+        } else if (['xls', 'xlsx'].includes(fileType)) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const workbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+                const headers = jsonData[0] || [];
+                const rows = jsonData.slice(1).map(row => headers.map((h, i) => row[i] || ''));
+                const parsed = rows.map(row => Object.fromEntries(headers.map((h, i) => [h, row[i]])));
+                handleParsedData(parsed, headers, rows);
+            };
+            reader.readAsArrayBuffer(file);
+        } else {
+            toast.error('Unsupported file type. Please upload CSV or Excel.');
         }
-    }
-
-    async componentDidMount() {
-        try {
-            await this.populateBanks();
-            const user = auth.getJwt();
-            const ParsedData = this.state.ParsedData;
-            const TableRows = this.state.TableRows;
-            const Values = this.state.Values;
-            this.setState({ user, ParsedData, TableRows, Values });
-
-            if (this.state.activeon < this.state.CurrentDate) {
-                //this.setState({nametochek:'nibyo'});
-                //this.setState({ isactif:false});
-            }
-        } catch (ex) {
-            return toast.error('An Error Occured, while rfetching revenu Payment data Please try again later' + ex);
-        }
-    }
-    PaymentIDHandler(e) {
-        this.setState({ RevenuePaymentId: e.target.value });
-    }
-    ProductIdHandler(e) {
-        this.setState({ RevenueProductId: e.target.value });
-    }
-    borderidHandler(e) {
-        this.setState({ borderid: e.target.value });
-    }
-
-    handlePageChange = (page) => {
-        this.setState({ currentPage: page });
     };
 
-    changeHandler = (event) => {
-        // Passing file data (event.target.files[0]) to parse using Papa.parse
-        Papa.parse(event.target.files[0], {
-            header: true,
-            skipEmptyLines: true,
-            complete: function (results) {
-                const rowsArray = [];
-                const valuesArray = [];
-
-                // Iterating data to get column name and their values
-                results.data.map((d) => {
-                    rowsArray.push(Object.keys(d));
-                    valuesArray.push(Object.values(d));
-                });
-                const ParsedData = results.data;
-                const TableRows = rowsArray[0];
-                const Values = valuesArray;
-                this.setState({ ParsedData, TableRows, Values });
-                this.handlepage();
-            }.bind(this),
-        });
+    const handleParsedData = (data, headers = null, values = null) => {
+        setParsedData(data);
+        setTableRows(headers || Object.keys(data[0] || {}));
+        setValues(values || data.map(Object.values));
     };
-    handlepage(i) {
-        const { pageSize, currentPage } = this.state;
 
-        const ParsedData = this.state.ParsedData;
-
-        const products = paginate(ParsedData, currentPage, pageSize);
-
-        return { totalCount: ParsedData.length, products, ParsedData };
-    }
-    handleSave = async (e) => {
+    // 🔹 handleSave with same logic as original class component
+    const handleSave = async () => {
         try {
-            // e.preventDefault();
-            const RevenueCorrectionId = 0;
-            const borderid = 2;
-            let loadData = this.state.loadData;
-            const Values = this.state.Values;
-            const data = this.state;
-            const ParsedData = this.state.ParsedData;
-            // await Correction.addrevenucorrection(
-            //  RevenueCorrectionId,
-            //  data.RevenuePaymentId,
-            //  data.RevenueProductId,
-            //  ParsedData
-            //);
+            const nfradviceid = 0;
+            const borderid = 2; // exactly same as original
+            const currencyid = 1;
+            const loadData = []; // original code ignored this anyway
+            const data = {}; // placeholder
+            setLoading(true);
 
-            for (const country of Object.keys(ParsedData)) {
-                loadData = [...loadData, ParsedData[country]];
-            }
-
-            if (borderid && this.state.revenuproductid && loadData) {
-                await Correction.addrevenucorrection(RevenueCorrectionId, borderid, this.state.revenuproductid, loadData);
-
+            if (borderid && revenuepaymentid && ParsedData.length) {
+                await Correction.addrevenucorrection(nfradviceid, borderid, revenuepaymentid, ParsedData, currencyid);
+                await Correction.creatediscripancy();
                 toast.success('Revenu correction file upload successfull');
             } else {
                 toast.error('All Field are required');
             }
+
+            onClose();
+
+            if (onDataUploaded) {
+                onDataUploaded();
+            }
         } catch (ex) {
             toast.error('An Error Occured, while uploading revenu correction file:' + ex);
+        } finally {
+            setLoading(false);
         }
-        this.props.history.push('/revenu/revenucorrection');
-        //const { state } = this.props.location;
-        //window.location = state ? state.from.pathname : "/";
     };
 
-    render() {
-        if (!this.props.show) {
-            return null;
-        }
-        const payment = this.state.payment;
-        const product = this.state.product;
-        const borders = this.state.borders;
-        //borderidHandler borders;
-        //const banks=this.state.banks
-        const { totalCount } = this.handlepage();
-        const { pageSize, currentPage } = this.state;
+    const paginatedValues = paginate(Values, currentPage, pageSize);
 
-        const TableRows = this.state.TableRows;
-        const Values = this.state.Values;
-        const products = paginate(Values, currentPage, pageSize);
+    if (!show) return null;
 
-        return (
-            <>
-                <div className="modal-backdrop" onClick={this.props.onClose}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <div
-                            style={{
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                            }}
-                        >
-                            <Col
-                                style={{
-                                    textAlign: 'center',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                }}
-                            >
-                                <Card className=" shadow border-0">
-                                    <CardHeader className="bg-transparent ">
-                                        <div className="text-muted text-center mt-2 mb-3">
-                                            <h1>
-                                                <div style={{ textAlign: 'center' }}>
-                                                    <big>Revenu Collection</big>
-                                                </div>
-                                            </h1>
-                                        </div>
-                                        <div className="btn-wrapper text-right">
-                                            <button type="button" className="btn btn-secondary" onClick={this.props.onClose}>
-                                                Close
-                                            </button>
-                                        </div>
-                                    </CardHeader>
-                                    <CardBody className="px-lg-5 py-lg-5">
-                                        <div className="card">
-                                            <div className="mb-3">
-                                                <div className="row">
-                                                    <div className="col">
-                                                        <label htmlFor="exampleFormControlInput1">Product Payment</label>
-                                                    </div>
-                                                    <div className="col">
-                                                        <select name="RevenuePaymentId" id="RevenuePaymentId" className="form-control" disabled onChange={(e) => this.PaymentIDHandler(e)}>
-                                                            <option value={this.state.revenuproductid}>{this.state.revenuproductname}</option>
-                                                            {payment.map((payment) => (
-                                                                <option key={payment.revenuepaymentid} value={payment.revenuepaymentid}>
-                                                                    {payment.revenueproductname}
-                                                                    {'--->'}
-                                                                    {payment.value}
-                                                                </option>
-                                                            ))}
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="mb-3">
-                                                <div className="row">
-                                                    <div className="col">
-                                                        <label htmlFor="exampleFormControlInput1">Currency</label>
-                                                    </div>
-                                                    <div className="col">
-                                                        <label htmlFor="exampleFormControlInput1">{this.state.currencyname}</label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            {/** 
-                <div className="mb-3">
-                  <div className="row">
-                    <div className="col">
-                      <label htmlFor="exampleFormControlInput1">
-                        National Border
-                      </label>
-                    </div>
-                    <div className="col">
-                      <select
-                        name="borderid"
-                        id="borderid"
-                        className="form-control"
-                        onChange={(e) => this.borderidHandler(e)}
-                      >
-                        <option value={this.state.borderid}>
-                          {this.state.bordername}
-                        </option>
-                        {borders.map((borders) => (
-                          <option
-                            key={borders.borderid}
-                            value={borders.borderid}
-                          >
-                            {borders.bordername}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-                */}
-                                        </div>
-                                        <br />
-                                        <br />
-                                        {!this.state.isactif && (
-                                            <Card className=" shadow border-0">
-                                                <CardHeader className="bg-transparent ">
-                                                    <small>
-                                                        <div style={{ textAlign: 'center', color: 'red' }}>The Exchenge rate is not Update, Please go on Current to update</div>
-                                                    </small>
-                                                </CardHeader>
-                                            </Card>
-                                        )}
-                                        {this.state.isactif && (
-                                            <Card className=" shadow border-0">
-                                                <CardHeader className="bg-transparent ">
-                                                    <small>
-                                                        <div style={{ textAlign: 'center' }}>Upload Bank statement</div>
-                                                    </small>
+    return (
+        <div className="modal-backdrop" onClick={onClose} style={{ overflowY: 'auto' }}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '900px', margin: '2rem auto' }}>
+                <Col>
+                    <Card className="shadow border-0">
+                        <CardHeader className="bg-transparent d-flex justify-content-between align-items-center">
+                            <h4 className="m-0">Upload NFR Advices</h4>
+                            <Button color="secondary" onClick={onClose}>Close</Button>
+                        </CardHeader>
+                        <CardBody>
+                            <Form>
+                                <FormGroup row>
+                                    <Label for="RevenuePaymentId" sm={3}>Revenue Payment</Label>
+                                    <Col sm={9}>
+                                        <Input type="select" value={revenuepaymentid} onChange={(e) => setRevenuePaymentId(e.target.value)} id="RevenuePaymentId">
+                                            <option value="">Select Revenue Payment</option>
+                                            {payment.map(p => (
+                                                <option key={p.revenuepaymentid} value={p.revenuepaymentid}>
+                                                    {p.revenueproductname} {'--->'} {p.value}
+                                                </option>
+                                            ))}
+                                        </Input>
+                                    </Col>
+                                </FormGroup>
 
-                                                    <div className="btn-wrapper text-right">
-                                                        <div className="row">
-                                                            <div className="col"></div>
-                                                            <div className="col">
-                                                                <button type="button" className="btn btn-primary" onClick={this.handleSave} aria-hidden="true">
-                                                                    Load Data...
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </CardHeader>
-                                                <CardBody className="px-lg-5 py-lg-5">
-                                                    <div className="row">
-                                                        <div className="col">
-                                                            <label htmlFor="exampleFormControlInput1">choose a CSV file to upload</label>
-                                                        </div>
-                                                        <div className="col">
-                                                            <input
-                                                                type="file"
-                                                                name="file"
-                                                                onChange={this.changeHandler}
-                                                                accept=".csv"
-                                                                style={{
-                                                                    display: 'block',
-                                                                    margin: '10px auto',
-                                                                }}
-                                                            />
-                                                        </div>
-                                                    </div>
+                                <FormGroup row>
+                                    <Label for="fileUpload" sm={3}>Choose file</Label>
+                                    <Col sm={9}>
+                                        <Input type="file" accept=".csv, .xls, .xlsx" onChange={handleFileChange} />
+                                        <small className="text-muted">Supported formats: CSV, XLS, XLSX</small>
+                                    </Col>
+                                </FormGroup>
+                                <div className="text-start mt-3">
+                                    <Button color="primary" onClick={handleSave} disabled={loading}>
+                                        {loading ? (<span><i className="spinner-border spinner-border-sm me-2"></i> Loading...</span>) : 'Load Data'}
+                                    </Button>
+                                </div>
 
-                                                    {/* File Uploader */}
+                                {loading && <Spinner />}
 
-                                                    <br />
-                                                    <br />
-                                                    {/* Table */}
-                                                    <div className="table-responsive mb-5">
-                                                        <table className=" striped bordered hover" border={1}>
-                                                            <thead>
-                                                                <tr>
-                                                                    {TableRows.map((rows, index) => {
-                                                                        return <th key={index}>{rows}</th>;
-                                                                    })}
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                {products.map((value, index) => {
-                                                                    return (
-                                                                        <tr key={index}>
-                                                                            {value.map((val, i) => {
-                                                                                return <td key={i}>{val}</td>;
-                                                                            })}
-                                                                        </tr>
-                                                                    );
-                                                                })}
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                    <Pagination itemsCount={totalCount} pageSize={pageSize} currentPage={currentPage} onPageChange={this.handlePageChange} />
-                                                </CardBody>
-                                            </Card>
-                                        )}
-                                    </CardBody>
-                                </Card>
-                            </Col>
-                        </div>
-                    </div>
-                </div>
-            </>
-        );
-    }
-}
+                                {Values.length > 0 && (
+                                    <div className="table-responsive mb-3">
+                                        <table className="table table-bordered table-striped table-hover">
+                                            <thead>
+                                                <tr>{TableRows.map((header, idx) => <th key={idx}>{header}</th>)}</tr>
+                                            </thead>
+                                            <tbody>
+                                                {paginatedValues.map((row, idx) => (
+                                                    <tr key={idx}>{row.map((cell, i) => <td key={i}>{cell}</td>)}</tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                                 <div className="d-flex justify-content-center mt-3">
+
+                                <Pagination itemsCount={Values.length} pageSize={pageSize} currentPage={currentPage} onPageChange={setCurrentPage} />
+
+                                </div>
+                            </Form>
+                        </CardBody>
+                    </Card>
+                </Col>
+            </div>
+        </div>
+    );
+};
+
 AddroleModal.propTypes = {
     show: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
+    onDataUploaded: PropTypes.func,
+    revenuproductid: PropTypes.number,
+    revenuproductname: PropTypes.string,
+    currencyid: PropTypes.number,
+    currencyname: PropTypes.string,
+    activeon: PropTypes.string,
 };
 
 export default AddroleModal;

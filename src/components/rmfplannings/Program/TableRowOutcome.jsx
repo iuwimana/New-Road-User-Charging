@@ -82,7 +82,18 @@ export const TableRowOutcome = ({
   //------------------------------------------------------------
   return (
     <>
-      <tr key={index}>
+    <tr>
+            <th>OutPutName</th>
+            <th>outcomename</th>
+            <th>outcomeFiscalYear</th>
+            
+
+            <th>
+              <big>Action</big>
+            </th>
+          </tr>
+      <tr key={index} className="outcome-row">
+
         <td></td>
         <td>
           <b>
@@ -90,25 +101,25 @@ export const TableRowOutcome = ({
           </b>
         </td>
         <td className="button-td">
-          <ExpendableButton isOpen={isOpen} toggle={toggle} />
+          
         </td>
         <td>{outcomeName}</td>
         <td>{outcomeFiscalYear}</td>
         <td>{outcomeDescription}</td>
         <td>
           <button
-            onClick={handleShow}
-            className="btn text-warning btn-act"
-            data-toggle="modal"
-          >
-            edit
-            <AiFillEdit />
-          </button>
+  onClick={handleShow}
+  className="btn btn-warning btn-sm me-1"
+  title="Edit Outcome"
+>
+  <AiFillEdit size={18} />
+</button>
           <button
-            className="btn btn-second"
+            className="btn btn-second btn-sm me-1"
             onClick={() => replaceModalItem(index)}
+            title="Delete Outcome"
           >
-            <AiFillDelete />
+            <AiFillDelete size={18} />
           </button>
         </td>
 
@@ -139,9 +150,10 @@ export const TableRowOutcome = ({
           <button
             onClick={handleShowsubprogram}
             className="btn text-warning btn-act"
+             title="Add Output"
             data-toggle="modal"
           >
-            <FcPlus />
+            <FcPlus size={18}/>
           </button>
         </td>
       </tr>
@@ -163,17 +175,22 @@ export const TableRowOutcome = ({
       {isOpen && (
         <>
           <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td colSpan="4">
-              <big>OutPutName</big>
-            </td>
+            <th>OutPutName</th>
+            <th>outcomename</th>
+            <th>outcomeFiscalYear</th>
+            
 
-            <td>
+            <th>
               <big>Action</big>
-            </td>
+            </th>
           </tr>
+          {output.map((output) => (
+          <tr key={output.outputid}>
+            <td>{output.outputname}</td>
+            <td>{output.outcomename}</td>
+            <td>{outcomeFiscalYear}</td>
+          </tr>
+          ))}
 
           {output.map((output) => (
             <TableRowOutput

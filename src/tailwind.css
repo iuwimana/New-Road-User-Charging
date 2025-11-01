@@ -118,7 +118,29 @@ hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark
     }
 
     .main-container .main-content {
-        @apply transition-all duration-300 lg:ltr:ml-[260px] lg:rtl:mr-[260px];
+        @apply transition-all duration-300 lg:ltr:ml-[100px] lg:rtl:mr-[100px];
+    }
+
+ 
+    .main-container {
+    @apply flex w-full min-h-screen;
+}
+.main-content {
+    @apply overflow-x-auto;
+}
+
+
+    /* Sidebar responsive adjustments */
+    @media (max-width: 1024px) {
+        .main-content {
+            @apply ml-0 rtl:mr-0;
+        }
+        .sidebar {
+            @apply fixed z-50 inset-y-0 left-0 w-64 transform -translate-x-full transition-transform duration-300 ease-in-out;
+        }
+        .sidebar.show {
+            @apply translate-x-0;
+        }
     }
 
     /* Horizontal layouts */

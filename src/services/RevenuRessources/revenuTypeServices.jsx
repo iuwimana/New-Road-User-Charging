@@ -2,12 +2,23 @@ import http from "../httpService";
 import apiUrl from "../../config.json";
 import { toast } from "react-toastify";
 const apiEndpoint = apiUrl.apiUrl + "/revenutype/revenutype";
+import { useNavigate } from 'react-router-dom';
+
+
+const handleServiceUnavailable = () => {
+  const navigate = useNavigate();
+  navigate('../pages/Pages/Error503');  // Redirect to "Service Unavailable" page
+};
+
 
 export async function getrevenuTypes() {
   try {
     const revget = await http.get(apiEndpoint);
     return revget;
   } catch (ex) {
+    if (ex.response && ex.response.status === 503) {
+      handleServiceUnavailable(); // Redirect to the Service Unavailable page
+    }
     return null;
   }
 }
@@ -16,6 +27,9 @@ export async function getrevenuTypeById(RevenueTypeId) {
   try {
     return await http.get(apiEndpoint, RevenueTypeId);
   } catch (ex) {
+    if (ex.response && ex.response.status === 503) {
+      handleServiceUnavailable(); // Redirect to the Service Unavailable page
+    }
     return toast.error(
       "An Error Occured, while fetching Revenu Types data, Please try again later" +
         ex
@@ -28,6 +42,9 @@ export async function deleterevenuType(RevenueTypeId) {
       data: { RevenueTypeId: RevenueTypeId },
     });
   } catch (ex) {
+    if (ex.response && ex.response.status === 503) {
+      handleServiceUnavailable(); // Redirect to the Service Unavailable page
+    }
     return toast.error(
       "An Error Occured, while deleting RevenueType Please try again later" + ex
     );
@@ -50,6 +67,9 @@ export async function addRevenueType(RevenueTypeId, RevenueTypename) {
 
     await http.post(apiEndpoint, { RevenueTypeId, RevenueTypename });
   } catch (ex) {
+    if (ex.response && ex.response.status === 503) {
+      handleServiceUnavailable(); // Redirect to the Service Unavailable page
+    }
     return toast.error(
       "An Error Occured, while saving Revenu Type of funds Please try again later" +
         ex

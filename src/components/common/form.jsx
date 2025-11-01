@@ -17,6 +17,7 @@ import SelectRoadType from "./selectRoadType";
 import SelectPavettype from "./selectPavettype";
 import SelectShoulder from "./selectShoulder";
 import SelectCurr from "./selectcurr";
+import Selectany from "./selectany";
 import Check from "./check";
 
 class Form extends Component {
@@ -113,6 +114,49 @@ class Form extends Component {
       />
     );
   }
+  rendernewSelect(name, label, options, valueProp, textProp) {
+  const { data, errors } = this.state;
+  return (
+    <div className="form-group">
+      <label>{label}</label>
+      <select
+        name={name}
+        value={data[name]}           // <--- aha ni ho igomba gufata value
+        onChange={this.handleChange} // cyangwa method yawe yo guhindura state
+        className="form-control"
+      >
+        <option value="">Select {label}</option>
+        {options.map(option => (
+          <option key={option[valueProp]} value={option[valueProp]}>
+            {option[textProp]}
+          </option>
+        ))}
+      </select>
+      {errors[name] && <div className="alert alert-danger">{errors[name]}</div>}
+    </div>
+  );
+}
+
+
+  
+
+  renderSelectany(name, label, options, valueProperty = "id", labelProperty = "name") {
+    const { data, errors } = this.state;
+  
+    return (
+      <Selectany
+        name={name}
+        value={data[name]}
+        label={label}
+        options={options}
+        valueProperty={valueProperty}
+        labelProperty={labelProperty}
+        onChange={this.handleChange}
+        error={errors[name]}
+      />
+    );
+  }
+  
 
   renderArear(name, label) {
     const { data, errors } = this.state;

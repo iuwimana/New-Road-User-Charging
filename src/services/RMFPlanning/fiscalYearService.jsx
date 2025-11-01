@@ -3,13 +3,19 @@ import  apiUrl  from "../../config.json";
 import { toast } from "react-toastify";
 const apiEndpoint = apiUrl.apiUrl + "/fiscalyear/fiscalyear";
 const apiEndpoints = apiUrl.apiUrl + "/fiscalyear/fiscalyears";
+import { useNavigate } from 'react-router-dom';
 
-
+const handleServiceUnavailable = () => {
+  navigate('/pages/error503');  // Redirect to "/service-unavailable" route
+};
 export async function getFiscalyears() {
   try {
     const Fiscalyear = await http.get(apiEndpoint);
     return Fiscalyear
   } catch (ex) {
+    if (ex.response && (ex.response.status === 503 || ex.response.status === 204 || ex.response.status === 400 )) {
+      handleServiceUnavailable(navigate); // Redirect to Service Unavailable page
+    }
     return null;
   }
 

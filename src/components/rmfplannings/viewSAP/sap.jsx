@@ -11,7 +11,7 @@ import * as Outcome from '../../../services/RMFPlanning/outcomeService';
 import * as UserApprovalData from '../../../services/security/userapprovalservice';
 import * as UserData from '../../../services/security/userServices';
 import * as auth from '../../../services/authService';
-import jwtDecode from 'jwt-decode';
+import {jwtDecode} from 'jwt-decode';
 import Pagination from '../../common/pagination';
 //import Form from "../common/form";
 import { Card, CardHeader, CardBody, Col,Row } from 'reactstrap';
@@ -68,7 +68,7 @@ class Sap extends Component {
         try {
             const user = auth.getJwt();
             this.setState({ user });
-            const users = jwtDecode(user);
+            const users = {jwtDecode}(user);
             this.setState({ users });
             const { data: userapprovals } = await UserApprovalData.getuserapprovalevel(users.username, 'Planing');
             this.setState({ userapprovals });

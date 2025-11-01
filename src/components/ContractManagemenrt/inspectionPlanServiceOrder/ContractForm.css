@@ -1,0 +1,339 @@
+/* === Base Reset === */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f6f8;
+  overflow-x: hidden;
+}
+
+/* === Container === */
+.contract-form-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* === Header === */
+.form-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.form-header h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: #2c3e50;
+}
+
+.form-header p {
+  font-size: 1rem;
+  color: #666;
+}
+
+/* === Form === */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+label {
+  font-weight: 600;
+  color: #333;
+}
+
+/* === Form Layout Rows === */
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.form-row .form-group {
+  flex: 1 1 300px;
+}
+
+/* === Inputs === */
+input, select, textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* === Date & Amount === */
+.date-picker,
+.amount-input input {
+  width: 100%;
+}
+
+/* === Supervision Contracts === */
+.supervision-contracts-section {
+  margin-top: 2rem;
+  border-top: 1px solid #e0e0e0;
+  padding-top: 1.5rem;
+}
+
+.supervision-contracts-section h3 {
+  font-size: 1.25rem;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.supervision-contract-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.contract-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.contract-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.5rem;
+}
+
+/* === Team Members === */
+.team-members-section {
+  background-color: #f9fafb;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.team-members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.team-member-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.member-info {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.member-name {
+  font-weight: 600;
+  color: #333;
+}
+
+.member-role {
+  background-color: #ebf8ff;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  color: #0077cc;
+  font-size: 0.875rem;
+}
+
+/* === Add Member === */
+.add-member-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.member-input,
+.role-select {
+  flex: 1 1 200px;
+}
+
+/* === Buttons === */
+button,
+.submit-btn,
+.cancel-btn,
+.add-member-btn {
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.submit-btn {
+  background-color: #4a90e2;
+  color: white;
+}
+
+.submit-btn:hover {
+  background-color: #357ac8;
+}
+
+.cancel-btn {
+  background-color: #e0e0e0;
+  color: #555;
+}
+
+.cancel-btn:hover {
+  background-color: #cfcfcf;
+}
+
+.add-supervision-btn {
+  margin-top: 1rem;
+  width: 100%;
+  border: 1px dashed #4a90e2;
+  color: #4a90e2;
+  background: #f0f7ff;
+  border-radius: 6px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.add-supervision-btn:hover {
+  background-color: #e1edfc;
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+  }
+
+  .contract-details {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+}
+.tree-node {
+  list-style: none;
+  margin: 2px 0;
+  padding-left: 12px;
+  border-left: 1px solid #e0e0e0;
+}
+
+.tree-node-container {
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+.tree-node-container:hover {
+  background: #f1f3f5;   /* subtle hover */
+  cursor: pointer;
+}
+
+.tree-toggle {
+  margin-right: 6px;
+  font-size: 14px;
+  color: #495057;
+  user-select: none;
+  font-weight: bold;
+}
+
+.tree-label {
+  font-size: 15px;
+  color: #212529;
+  transition: color 0.2s ease;
+}
+
+.tree-label:hover {
+  color: #007bff;   /* professional blue */
+}
+
+.tree-children {
+  margin-left: 18px;
+  padding-left: 0;
+}
+
+.tree-loading {
+  font-size: 13px;
+  color: #6c757d;
+  margin-left: 20px;
+  font-style: italic;
+}
+
+.dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); /* reduced from 220px */
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+
+
+.dashboard-cards .card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1.2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    background-color: #fff;
+    min-height: 250px;
+    max-width: 300px;
+}
+
+.dashboard-cards .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+}
+
+.dashboard-cards .card-title {
+    font-weight: 200;
+    font-size: 0.95rem;
+    color: #555;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.dashboard-cards .card-text {
+    font-weight: 700;
+    font-size: 1.6rem;
+    color: #333;
+    text-align: center;
+    margin: 0;
+}
+
+.dashboard-cards .highlight {
+    color: #1f78d1; /* accent color for numbers */
+}
+
+

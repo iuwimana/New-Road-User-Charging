@@ -91,7 +91,7 @@ export const TableSection = ({ programname, description, index }) => {
               <AiFillDelete />
             </button>
           </small>
-          <Modal show={show} onHide={handleClose}>
+          <Modal show={show} onHide={handleClose} size="lg" centered>
             <Modal.Header closeButton>
               <Modal.Title>Update Program data</Modal.Title>
              
@@ -124,7 +124,7 @@ export const TableSection = ({ programname, description, index }) => {
           </button>
         </td>
 
-        <Modal show={modalOpen} onHide={handleClosesubprogram}>
+        <Modal show={modalOpen} onHide={handleClosesubprogram} size="lg" centered>
           <Modal.Header closeButton>
             <Modal.Title>Add SubProgram </Modal.Title>
             

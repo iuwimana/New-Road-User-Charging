@@ -1,7 +1,9 @@
 import http from "../httpService";
 import  apiUrl  from "../../config.json";
 import { toast } from "react-toastify";
+import { useNavigate } from 'react-router-dom';
 const apiEndpoint = apiUrl.apiUrl + "/program/program";
+const apiEndpointbyfiscalyear=apiUrl.apiUrl +  "/program/programbyfiscalyear"
 
 
 export async function getprograms() {
@@ -23,6 +25,13 @@ export async function getprogramById(ProgramId) {
     return toast.error("An Error Occured, while fetching program data, Please try again later"+ex);
   }
 }
+export async function getprogramByfiscalyearId(fiscalyearid) {
+  try {
+    return await http.post(apiEndpointbyfiscalyear,{fiscalyearid});
+  } catch (ex) {
+    return toast.error("An Error Occured, while fetching program data, Please try again later"+ex);
+  }
+}
 export async function deleteprogram(ProgramId) {
   try {
        
@@ -33,7 +42,7 @@ export async function deleteprogram(ProgramId) {
     return toast.error("An Error Occured, while deleting program Please try again later"+ex);
   }
 }
-export async function addprogram(ProgramId,ProgramName,Description) {
+export async function addprogram(ProgramId,ProgramName,Description,fiscalyearid) {
   try {
     //fetch(apiEndpoint, {
       //method: 'POST',
@@ -48,7 +57,7 @@ export async function addprogram(ProgramId,ProgramName,Description) {
      // },
   // })
   
-     await http.post(apiEndpoint,{ ProgramId,ProgramName,Description});
+     await http.post(apiEndpoint,{ ProgramId,ProgramName,Description,fiscalyearid});
     
   } catch (ex) {
     return toast.error("An Error Occured, while saving program of funds Please try again later" + ex );;

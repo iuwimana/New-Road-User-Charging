@@ -24,6 +24,7 @@ const Counter = lazy(() => import('../pages/Components/Counter'));
 const SweetAlert = lazy(() => import('../pages/Components/SweetAlert'));
 const Timeline = lazy(() => import('../pages/Components/Timeline'));
 const Notification = lazy(() => import('../pages/Components/Notification'));
+//const RecoverIdBoxed = lazy(() => import('../pages/Authentication/RecoverIdBox'));
 const MediaObject = lazy(() => import('../pages/Components/MediaObject'));
 const ListGroup = lazy(() => import('../pages/Components/ListGroup'));
 const PricingTable = lazy(() => import('../pages/Components/PricingTable'));
@@ -62,6 +63,7 @@ const RangeSearch = lazy(() => import('../pages/DataTables/RangeSearch'));
 const Export = lazy(() => import('../pages/DataTables/Export'));
 const ColumnChooser = lazy(() => import('../pages/DataTables/ColumnChooser'));
 const Profile = lazy(() => import('../pages/Users/Profile'));
+
 const AccountSetting = lazy(() => import('../pages/Users/AccountSetting'));
 const KnowledgeBase = lazy(() => import('../pages/Pages/KnowledgeBase'));
 const ContactUsBoxed = lazy(() => import('../pages/Pages/ContactUsBoxed'));
@@ -75,6 +77,7 @@ const ERROR500 = lazy(() => import('../pages/Pages/Error500'));
 const ERROR503 = lazy(() => import('../pages/Pages/Error503'));
 const Maintenence = lazy(() => import('../pages/Pages/Maintenence'));
 const LoginBoxed = lazy(() => import('../pages/Authentication/LoginBoxed'));
+const RevDashboard  = lazy(() => import('../components/revenueCorrection/RevenuDashbord/revenudashboard1'));
 const RegisterBoxed = lazy(() => import('../pages/Authentication/RegisterBoxed'));
 const UnlockBoxed = lazy(() => import('../pages/Authentication/UnlockBox'));
 const RecoverIdBoxed = lazy(() => import('../pages/Authentication/RecoverIdBox'));
@@ -115,6 +118,7 @@ const routesmains = [
         layout: 'blank',
         
     },
+   
     {
         path: '/auth/boxed-signin',
         element: <LoginBoxed />,
@@ -125,6 +129,11 @@ const routesmains = [
         element: <VerifyOTP  />,
         layout: 'blank',
     },
+     {
+            path: '/auth/boxed-password-reset',
+            element: <RecoverIdBoxed />,
+            layout: 'blank',
+        },
     {
         path: '*',
         element: <Error />,

@@ -15,7 +15,7 @@ import * as ContractIspectionData from "../../../../services/contractinpection/c
 import * as UserApprovalData from "../../../../services/security/userapprovalservice";
 import * as UserData from "../../../../services/security/userServices";
 import * as auth from "../../../../services/authService";
-import jwtDecode from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 
 import Pagination from "../../../common/pagination";
 //import Form from "../common/form";
@@ -157,7 +157,7 @@ async populateBanks() {
       }
       const user = auth.getJwt();
       this.setState({ user });
-      const users = jwtDecode(user);
+      const users = {jwtDecode}(user);
       this.setState({ users });
       const { data: userapprovals } =
         await UserApprovalData.getuserapprovalevel(users.username, "Inspection");

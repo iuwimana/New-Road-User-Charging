@@ -1,191 +1,105 @@
-import React from "react";
-//import * as source from "../../../services/RevenuRessources/sourceofFundsServices";
-import Joi from "joi-browser";
-import * as bank from "../../../../services/RevenuRessources/bankservices";
-//import * as RevenuType from "../../../services/RevenuRessources/revenuTypeServices";
+import React, { useState, useEffect } from "react";
+import { Modal, Button, Form } from "react-bootstrap";
 import { toast } from "react-toastify";
-import * as auth from "../../../../services/authService";
-import Form from "../../../common/form";
-import * as RoadType from "../../../../services/ContractManagement/RoadRefference/roadTypeServices";
-import * as Characteristic from "../../../../services/ContractManagement/RoadRefference/roadCharacteristicServices";
-import * as Road from "../../../../services/ContractManagement/RoadRefference/road";
-class AddroleModal extends Form {
-  constructor(props) {
-    super(props);
-    //this.handleSave = this.handleSave.bind(this);
-    
-   this.state = {
-      data: {roodid:0,roodname:"",rooddistance:0,roodtypeid:0,roodtypename:"",
-             roadclass:"",roadcharacteristicsid:0,numberoflames:0,lamewidth:0,
-            shouldername:"",pavettypename:"" },
-        
-      roodid:0,
-      roodname:"",
-      rooddistance:0,
-      roodtypeid:0,
-      roodtypename:"",
-      roadclass:"",
-      roadcharacteristicsid:0,
-      numberoflames:0,
-      lamewidth:0,
-      shouldername:"",
-      pavettypename:"",
-      user:{},
-      errors: {},
-      roadtypes: [],
-      characteristics: [],
-      roads: [],
-    };
-  }
-async populateBanks() {
-  try{
-    const { data: roadtypes } = await RoadType.getroadtypes();
-    const { data: characteristics } = await Characteristic.getcharacteristics();
-    const { data: roads } = await Road.getroads();
-    this.setState({ roadtypes,characteristics,roads });
-  }catch (ex) {
-    toast.error("Loading issues......"+ex);
-  }
-    
-    
-  }
+import * as RoadService from "../../../../services/ContractManagement/RoadRefference/road";
+import * as RoadTypeService from "../../../../services/ContractManagement/RoadRefference/roadTypeServices";
+import * as CharacteristicService from "../../../../services/ContractManagement/RoadRefference/roadCharacteristicServices";
 
- async  componentDidMount() {
-  await this.populateBanks();
-    const user = auth.getJwt();
-    this.setState({ user });
-  }
-    componentWillReceiveProps(nextProps) {
-    this.setState({
-          
-                           
-                         
-      roodid:nextProps.roodid,
-      roodname: nextProps.roodname,
-      rooddistance: nextProps.rooddistance,
-      roodtypeid:nextProps.roodtypeid,
-      roodtypename:nextProps.roodtypename,
-      roadclass:nextProps.roadclass,
-      roadcharacteristicsid:nextProps.roadcharacteristicsid,
+const AddRoadModal = ({ show, handleClose, refreshData }) => {
+  const [formData, setFormData] = useState({
+    roodid:0,
+    roodname: "",
+    rooddistance: 0,
+    roodtypeid: 0,
+    roadcharacteristicsid: 0,
+  });
 
-      numberoflames:nextProps.numberoflames,
-      lamewidth:nextProps.lamewidth,
-      shouldername:nextProps.shouldername,
-      pavettypename:nextProps.pavettypename,
-      
-    });
-  }
- schema = {
-    roodid: Joi.number()
-                           .required(),
-    roodname: Joi.string()
-                            .required()
-                            .label("roodname"),
-    rooddistance: Joi.number(),
-                      
-    roodtypeid: Joi.number() 
-                      .required(),
-    roadcharacteristicsid: Joi.number()
-               .required(),
-    
+  const [roadTypes, setRoadTypes] = useState([]);
+  const [characteristics, setCharacteristics] = useState([]);
+
+  // Fetch dropdown data
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const { data: types } = await RoadTypeService.getroadtypes();
+        const { data: chars } = await CharacteristicService.getcharacteristics();
+        setRoadTypes(types || []);
+        setCharacteristics(chars || []);
+      } catch (error) {
+        toast.error("Failed to load road types or characteristics.");
+      }
+    }
+    fetchData();
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: e.target.type === "number" ? parseFloat(value) : value }));
   };
-   
 
-
-   handleClick= async(e)=>{
-   try {
-    const { data } = this.state;
-    const RoodId=0
-    //await source.addsource(SourceofFundId,data.SourceofFundname,data.AccountNumber,data.BankId,data.RevenueTypeId,data.StartDate,data.EndDate);
-    
-    //RoodId,RoodName,RoodDistance,RoodTypeId,roadcharacteristicsid
-     
-       await Road.addroad(RoodId,data.roodname,data.rooddistance,data.roodtypeid,data.roadcharacteristicsid);
-        toast.success(`Road setting  has been save successful: `);
-      
-    } catch (ex) {
-      if (ex.response && ex.response.status === 400) {
-        const errors = { ...this.state.errors };
-        errors.rolename = ex.response.data;
-        toast.error("Error:" + errors.rolename);
-        this.setState({ errors });
-      } else if (ex.response && ex.response.status === 409) {
-        const errors = { ...this.state.errors };
-        errors.rolename = ex.response.data;
-        toast.error("Error:" + errors.rolename);
-        this.setState({ errors });
-      } else {
-        
-        
-        toast.error("An Error Occured, while saving Bussiness parterner Please try again later"+ex);
+  const handleSubmit = async () => {
+    try {
+      await RoadService.addroad(formData);
+      toast.success("Road added successfully!"+JSON.stringify(formData));
+      refreshData();
+      handleClose();
+    } catch (error) {
+      toast.error("Failed to add road.");
     }
-    }
-  }
-   
+  };
 
+  return (
+    <Modal show={show} onHide={handleClose} size="lg" backdrop="static">
+      <Modal.Header closeButton>
+        <Modal.Title>Add New Road</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Form>
+          <Form.Group className="mb-2">
+            <Form.Label>Road Name</Form.Label>
+            <Form.Control type="text" name="roodname" value={formData.roodname} onChange={handleChange} />
+          </Form.Group>
 
-  render() {
-    //const paternerStatuses = this.state.paternerStatuses;
-    //const banks = this.state.banks;
-    return (
-      
-      <div  
-        className="modal fade"
-        id="exampleAddModal"
-        tabIndex="-1"
-        role="dialog"
-        aria-labelledby="exampleModalLabel"
-        aria-hidden="true"
-         
-      >
-        <div className="modal-dialog" role="document">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title" id="exampleModalLabel">
-                Road Registration
-              </h5>
-              <button
-                type="button"
-                className="close"
-                data-dismiss="modal"
-                aria-label="Close"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
+          <Form.Group className="mb-2">
+            <Form.Label>Road Distance (KM)</Form.Label>
+            <Form.Control type="number" name="rooddistance" value={formData.rooddistance} onChange={handleChange} step="0.01" />
+          </Form.Group>
 
-            <form onSubmit={this.handleSubmit}>
-              {this.renderInput("roodname", "Rood Name")}
-              {this.renderInput("rooddistance", "Rood Distance")}
-              {this.renderSelectroadType("roodtypeid", "Rood Type", this.state.roadtypes)}
-              {this.renderSelectroadCharacteristic("roadcharacteristicsid", "road characteristics", this.state.characteristics)}
-                     
+          <Form.Group className="mb-2">
+            <Form.Label>Road Type</Form.Label>
+            <Form.Select name="roodtypeid" value={formData.roodtypeid} onChange={handleChange}>
+              <option value={0}>-- Select Road Type --</option>
+              {roadTypes.map((t) => (
+                <option key={t.roadtypeid} value={t.roadtypeid}>
+                  {t.roadtypename}
+                </option>
+              ))}
+            </Form.Select>
+          </Form.Group>
 
-              
-              <div className="modal-footer">
-              <button 
-              type="button"
-              className="btn btn-primary"
-              data-dismiss="modal"
-                onClick={this.handleClick}
-              >AddNew</button>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-dismiss="modal"
-              >
-                Close
-              </button >
-              
-              </div>
-             </form> 
-           
-            
-          </div>
-        </div>
-      </div>
-    );
-  }
-}
+          <Form.Group className="mb-2">
+            <Form.Label>Road Characteristics</Form.Label>
+            <Form.Select name="roadcharacteristicsid" value={formData.roadcharacteristicsid} onChange={handleChange}>
+              <option value={0}>-- Select Characteristics --</option>
+              {characteristics.map((c) => (
+                <option key={c.roadcharacteristicsid} value={c.roadcharacteristicsid}>
+                  {c.roadclass} | Lanes: {c.numberoflames} | Shoulder: {c.shouldername}
+                </option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+        </Form>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={handleClose}>
+          Cancel
+        </Button>
+        <Button variant="primary" onClick={handleSubmit}>
+          Save
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  );
+};
 
-export default AddroleModal;
+export default AddRoadModal;

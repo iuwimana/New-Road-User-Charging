@@ -62,7 +62,7 @@ export const TableRowOutput = ({
 
   return (
     <>
-      <tr key={index}>
+      <tr key={index} className="output-row">
         <td></td>
         <td></td>
         <td>

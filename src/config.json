@@ -1,5 +1,6 @@
 {
-  "apiUrl": "https://api.ruc.rmf.gov.rw/api"
+  
+  "apiUrl": "http://localhost:9080/api"
   
   
 }

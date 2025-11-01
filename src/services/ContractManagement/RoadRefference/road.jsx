@@ -33,24 +33,20 @@ export async function deleteroad(RoodId) {
     );
   }
 }
-export async function addroad(
-  RoodId,
-  RoodName,
-  RoodDistance,
-  RoodTypeId,
-  roadcharacteristicsid
-) {
+export async function addroad(road) {
   try {
+    toast.success("Road updated successfully!"+JSON.stringify(road));
     await http.post(apiEndpoint, {
-      RoodId,
-      RoodName,
-      RoodDistance,
-      RoodTypeId,
-      roadcharacteristicsid,
+      RoodId:road.roodid,
+      RoodName: road.roodname,
+      RoodDistance: road.rooddistance,
+      RoodTypeId: road.roodtypeid,
+      roadcharacteristicsid: road.roadcharacteristicsid,
     });
   } catch (ex) {
-    return toast.error(
-      "An Error Occured, while saving road of funds Please try again later" + ex
+    toast.error(
+      "An error occurred while saving the road. Please try again later. " + ex
     );
+    throw ex; // re-throw if you want the calling code to handle it
   }
 }

@@ -3,7 +3,9 @@ import apiUrl from "../../../config.json";
 import { toast } from "react-toastify";
 const apiEndpoint = apiUrl.apiUrl + "/project/project";
 const apiEndpointps = apiUrl.apiUrl + "/project/projects";
+const apiEndpointm= apiUrl.apiUrl + "/project/projectm";
 const apiEndpoints = apiUrl.apiUrl + "/serviceorder/serviceorders";
+const apiEndpointA = apiUrl.apiUrl + "/project/projectsummary"; // aggregates
 
 export async function getprojects() {
   try {
@@ -47,10 +49,32 @@ export async function getprojectsbyfiscalyearcontracttypeid(fiscalyearcontractty
     );
   }
 }
-export async function deleteproject(projectid) {
+
+export async function getprojectsAggregates(fiscalyearcontracttypeid) {
+  try {
+    return await http.post(apiEndpointA, {fiscalyearcontracttypeid});
+  } catch (ex) {
+    return toast.error(
+      "An Error Occured, while fetching project data, Please try again later" +
+        ex
+    );
+  }
+}
+
+export async function getprojectsbyfiscalyearcontracttypem(fiscalyearcontracttypeid) {
+  try {
+    return await http.post(apiEndpointm, {fiscalyearcontracttypeid});
+  } catch (ex) {
+    return toast.error(
+      "An Error Occured, while fetching project data, Please try again later" +
+        ex
+    );
+  }
+}
+export async function deleteproject(contractid) {
   try {
     await http.delete(apiEndpoint, {
-      data: { projectid: projectid },
+      data: { contractid: contractid },
     });
   } catch (ex) {
     return toast.error(
